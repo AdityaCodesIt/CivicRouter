@@ -16,16 +16,12 @@ import {
   XCircle,
   ExternalLink,
   Navigation,
-  Compass,
-  AlertTriangle,
   Utensils,
   Sun,
   Eye,
   IndianRupee,
   Clock,
   ChevronLeft,
-  ChevronRight,
-  MapPin,
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react';
@@ -44,7 +40,6 @@ export const GoPage: React.FC = () => {
     toggleHighContrast,
     resetToMockData,
     stats,
-    t,
   } = useRoute();
 
   const navigate = useNavigate();
@@ -69,13 +64,12 @@ export const GoPage: React.FC = () => {
   // Check if any pitstop is near current stop
   const nearbyPitstop = wishlist.find((w) => w.nearStopId === currentStop?.id);
 
-  // Trigger haptic vibration if supported on device
   const triggerHaptic = () => {
     if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
       try {
         navigator.vibrate([40, 30, 60]);
       } catch {
-        // Ignore if restricted by browser permissions
+        // Ignore if restricted
       }
     }
   };
@@ -84,7 +78,6 @@ export const GoPage: React.FC = () => {
     if (!currentStop) return;
     triggerHaptic();
 
-    // Trigger card slide animation
     setIsSliding(true);
     setTimeout(() => {
       markStopComplete(currentStop.id);
@@ -108,15 +101,13 @@ export const GoPage: React.FC = () => {
     setShowUndo(false);
   };
 
-  // Google Maps External URL
   const googleMapsUrl = currentStop
     ? `https://www.google.com/maps/dir/?api=1&destination=${currentStop.coordinates.lat},${currentStop.coordinates.lng}`
     : '#';
 
-  // 1. END OF DAY CELEBRATION STATE
   if (isAllDone || !currentStop) {
     return (
-      <div className="min-h-screen bg-[#F4F1EA]">
+      <div className="min-h-screen bg-[var(--color-bg)] py-8">
         <EndOfDayCelebration
           stops={stops}
           completedCount={stats.completedCount}
@@ -125,7 +116,6 @@ export const GoPage: React.FC = () => {
           totalCodAmount={stats.totalCodAmount}
           onReset={resetToMockData}
         />
-        {/* Undo Snackbar on celebration screen in case user completed by mistake */}
         {showUndo && lastAction && (
           <UndoSnackbar
             action={lastAction}
@@ -140,25 +130,25 @@ export const GoPage: React.FC = () => {
   const paddedOrder = String(currentStop.order).padStart(2, '0');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F1EA] select-none">
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg)] select-none">
       {/* 1. TOP HUD STRIP & PROGRESS TICKER RAIL */}
-      <div className="bg-[#15171A] text-white border-b-2 border-[#0E0E0E] px-3 pt-2.5 pb-2 shrink-0">
+      <div className="bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 pt-3 pb-2.5 shrink-0 shadow-sm">
         <div className="max-w-4xl mx-auto">
           {/* Top Info Bar */}
           <div className="flex items-center justify-between mb-2">
             <button
               type="button"
               onClick={() => navigate('/route')}
-              className="flex items-center gap-1 font-mono text-xs font-bold text-[#F6B800] hover:underline cursor-pointer"
+              className="flex items-center gap-1 font-body text-xs font-semibold text-[var(--color-ink)] hover:text-[#8c5e03] cursor-pointer transition-colors"
             >
-              <ChevronLeft className="w-4 h-4" />
-              <span>EXIT TO ROUTE BOARD</span>
+              <ChevronLeft className="w-4 h-4 text-[var(--color-marigold)]" />
+              <span>Exit to Route Board</span>
             </button>
 
-            <div className="flex items-center gap-2 font-mono text-xs font-bold">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#2E7D4F] animate-pulse" />
+            <div className="flex items-center gap-2 font-mono text-xs font-semibold text-[var(--color-ink)]">
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-sage-deep)] animate-pulse" />
               <span>
-                STOP {activeStopIndex + 1} OF {stops.length}
+                Stop {activeStopIndex + 1} of {stops.length}
               </span>
             </div>
 
@@ -166,13 +156,13 @@ export const GoPage: React.FC = () => {
               type="button"
               onClick={toggleHighContrast}
               title="Toggle High Contrast for Glaring Sun"
-              className="w-8 h-8 rounded border border-white/30 flex items-center justify-center text-[#F6B800] cursor-pointer"
+              className="w-8 h-8 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-bg-sunken)] flex items-center justify-center text-[var(--color-ink)] cursor-pointer transition-colors"
             >
-              {highContrast ? <Eye className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {highContrast ? <Eye className="w-4 h-4 text-[#8c5e03]" /> : <Sun className="w-4 h-4" />}
             </button>
           </div>
 
-          {/* Thin Horizontal Progress Rail of Small Tickets */}
+          {/* Thin Horizontal Progress Rail */}
           <HorizontalProgressRail
             stops={stops}
             activeIndex={activeStopIndex}
@@ -182,50 +172,51 @@ export const GoPage: React.FC = () => {
       </div>
 
       {/* 2. LARGE "NEXT STOP" CARD AT TOP (BIKE HANDLEBAR OPTIMIZED) */}
-      <div className="max-w-4xl mx-auto w-full px-3 pt-3">
-        {/* On The Way Errand Slide-In Banner */}
+      <div className="max-w-4xl mx-auto w-full px-4 pt-4">
+        {/* On The Way Slide-In Banner */}
         <OnTheWayPromptBanner className="mb-3" />
 
         <div
-          className={`ticket-stub p-4 sm:p-5 bg-white border-2 border-[#0E0E0E] shadow-hard transition-all duration-200 ${
+          className={`soft-card p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm transition-all duration-200 ${
             isSliding ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'
           }`}
         >
           {/* Top Bar: Stop number token + Pickup/Drop badge + Priority badge + ETA */}
-          <div className="flex items-center justify-between border-b-2 border-dashed border-[#0E0E0E]/20 pb-3 mb-3">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3 mb-3">
             <div className="flex items-center gap-3">
-              {/* Big IBM Plex Mono Stop Number */}
-              <div className="w-14 h-14 rounded-[4px] border-2 border-[#0E0E0E] bg-[#F6B800] text-[#0E0E0E] font-mono font-black text-2xl flex items-center justify-center shadow-hard-sm">
+              <div className="w-14 h-14 rounded-2xl bg-[var(--color-marigold)] text-[var(--color-ink)] font-mono font-bold text-2xl flex items-center justify-center shadow-sm">
                 {paddedOrder}
               </div>
 
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-[11px] font-bold text-[#0E0E0E]/70 uppercase tracking-wider">
-                    TARGET STOP
+                  <span className="font-mono text-[10px] font-semibold text-[var(--color-ink-muted)] uppercase tracking-wide">
+                    Target Stop
                   </span>
 
                   {/* Pickup vs Drop Indicator */}
                   <span
-                    className={`px-1.5 py-0.5 rounded-[2px] border border-[#0E0E0E] font-mono font-extrabold text-[10px] uppercase flex items-center gap-1 ${
-                      isPickup ? 'bg-[#E58A00] text-[#0E0E0E]' : 'bg-[#15171A] text-white'
+                    className={`px-2 py-0.5 rounded-full font-body font-semibold text-[10px] uppercase flex items-center gap-1 ${
+                      isPickup
+                        ? 'bg-[var(--color-marigold-tint)] text-[#8c5e03]'
+                        : 'bg-[var(--color-sky-tint)] text-[var(--color-ink)]'
                     }`}
                   >
                     {isPickup ? (
                       <>
-                        <ArrowUpRight className="w-3 h-3 stroke-[3]" />
-                        <span>PICKUP</span>
+                        <ArrowUpRight className="w-3 h-3 stroke-[2.5]" />
+                        <span>Pickup</span>
                       </>
                     ) : (
                       <>
-                        <ArrowDownRight className="w-3 h-3 stroke-[3]" />
-                        <span>DROP</span>
+                        <ArrowDownRight className="w-3 h-3 stroke-[2.5]" />
+                        <span>Drop</span>
                       </>
                     )}
                   </span>
                 </div>
 
-                <h2 className="font-display font-black text-xl sm:text-2xl text-[#0E0E0E] leading-tight mt-0.5 truncate max-w-[240px] sm:max-w-md">
+                <h2 className="font-display font-bold text-xl sm:text-2xl text-[var(--color-ink)] leading-tight mt-0.5 truncate max-w-[220px] sm:max-w-md">
                   {currentStop.recipientName}
                 </h2>
               </div>
@@ -234,19 +225,19 @@ export const GoPage: React.FC = () => {
             {/* Priority & Distance/ETA */}
             <div className="flex flex-col items-end gap-1">
               <PriorityBadge priority={currentStop.priority} size="md" />
-              <div className="font-mono font-extrabold text-sm sm:text-base text-[#0E0E0E] tabular-nums mt-0.5">
-                {currentStop.distanceKm} KM · +{currentStop.etaMinutes}m
+              <div className="font-mono font-bold text-sm sm:text-base text-[var(--color-ink)] tabular-nums mt-0.5">
+                {currentStop.distanceKm} km · +{currentStop.etaMinutes}m
               </div>
             </div>
           </div>
 
           {/* Location & Landmark Clue */}
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] mb-3">
-            <p className="font-body font-bold text-sm sm:text-base text-[#0E0E0E] leading-snug">
+          <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl mb-3">
+            <p className="font-body font-semibold text-sm sm:text-base text-[var(--color-ink)] leading-snug">
               {currentStop.address}
             </p>
-            <div className="mt-1 flex items-center gap-2 text-xs font-mono font-bold text-[#0E0E0E]">
-              <span className="text-[#E58A00]">LANDMARK:</span>
+            <div className="mt-1 flex items-center gap-2 text-xs font-body text-[var(--color-ink-secondary)]">
+              <span className="font-semibold text-[#8c5e03]">Landmark:</span>
               <span className="truncate">{currentStop.landmark} ({currentStop.area})</span>
             </div>
           </div>
@@ -254,40 +245,40 @@ export const GoPage: React.FC = () => {
           {/* Optional COD / Notes Strip */}
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             {currentStop.codAmount && currentStop.codAmount > 0 ? (
-              <div className="px-2.5 py-1 bg-[#FFF9E6] border-2 border-[#0E0E0E] rounded-[3px] font-mono text-xs font-extrabold text-[#0E0E0E] flex items-center gap-1">
-                <span className="text-[#E58A00]">COLLECT COD:</span>
+              <div className="px-3 py-1 bg-[var(--color-marigold-tint)] border border-[var(--color-marigold)]/30 rounded-full font-mono text-xs font-semibold text-[#8c5e03] flex items-center gap-1">
+                <span>Collect COD:</span>
                 <IndianRupee className="w-3.5 h-3.5" />
                 <span>{currentStop.codAmount}</span>
               </div>
             ) : (
-              <span className="font-mono text-[11px] font-bold text-[#2E7D4F] bg-[#2E7D4F]/10 px-2 py-0.5 border border-[#2E7D4F] rounded-[2px]">
-                ✓ PREPAID / NO CASH
+              <span className="font-body text-xs font-semibold text-[var(--color-sage-deep)] bg-[var(--color-sage-tint)] px-3 py-1 rounded-full border border-[var(--color-sage)]/30">
+                ✓ Prepaid / No Cash
               </span>
             )}
 
             {currentStop.deadline && (
-              <div className="font-mono text-xs font-bold text-[#D7372B] flex items-center gap-1">
+              <div className="font-mono text-xs font-semibold text-[var(--color-priority-high)] flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
                 <span>Deliver by {currentStop.deadline}</span>
               </div>
             )}
           </div>
 
-          {/* Quick Action Buttons Row (min 48px - 56px touch hitboxes for thumb accessibility on bike) */}
+          {/* Quick Action Buttons Row (56px touch hitboxes) */}
           <div className="grid grid-cols-3 gap-2">
             {/* 1. Call Button */}
             {currentStop.phone ? (
               <a
                 href={`tel:${currentStop.phone.replace(/\s+/g, '')}`}
-                className="min-h-[50px] px-2 flex items-center justify-center gap-1.5 rounded-[4px] border-2 border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#F4F1EA] active:bg-[#E8E4DA] font-display font-bold text-xs uppercase shadow-hard-sm"
+                className="min-h-[52px] px-2 flex items-center justify-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:bg-[var(--color-bg-sunken)] active:scale-95 font-body font-semibold text-xs transition-all shadow-sm"
               >
-                <Phone className="w-4 h-4 text-[#2E7D4F]" />
+                <Phone className="w-4 h-4 text-[var(--color-sage-deep)]" />
                 <span>Call</span>
               </a>
             ) : (
               <button
                 disabled
-                className="min-h-[50px] px-2 flex items-center justify-center gap-1.5 rounded-[4px] border-2 border-[#0E0E0E]/30 bg-gray-100 text-[#0E0E0E]/40 font-display font-bold text-xs uppercase"
+                className="min-h-[52px] px-2 flex items-center justify-center gap-1.5 rounded-full border border-[var(--color-border)]/50 bg-[var(--color-bg-sunken)] text-[var(--color-ink-muted)] font-body font-medium text-xs opacity-60"
               >
                 <Phone className="w-4 h-4" />
                 <span>No Tel</span>
@@ -299,19 +290,19 @@ export const GoPage: React.FC = () => {
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="min-h-[50px] px-2 flex items-center justify-center gap-1.5 rounded-[4px] border-2 border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#F4F1EA] active:bg-[#E8E4DA] font-display font-bold text-xs uppercase shadow-hard-sm"
+              className="min-h-[52px] px-2 flex items-center justify-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:bg-[var(--color-bg-sunken)] active:scale-95 font-body font-semibold text-xs transition-all shadow-sm"
             >
-              <ExternalLink className="w-4 h-4 text-[#3E7C7A]" />
+              <ExternalLink className="w-4 h-4 text-[var(--color-sky-accent)]" />
               <span>G-Maps</span>
             </a>
 
-            {/* 3. In-App Navigate (HUD Guidance) */}
+            {/* 3. In-App Navigate */}
             <button
               type="button"
               onClick={() => setNavModalOpen(true)}
-              className="min-h-[50px] px-2 flex items-center justify-center gap-1.5 rounded-[4px] border-2 border-[#0E0E0E] bg-[#15171A] text-white hover:bg-black font-display font-bold text-xs uppercase shadow-hard-sm"
+              className="min-h-[52px] px-2 flex items-center justify-center gap-1.5 rounded-full bg-[#1F2A27] text-[#FAF6EF] hover:bg-[#2C3B37] dark:bg-[#25322D] dark:text-[#FAF6EF] dark:border dark:border-[#384A43] dark:hover:bg-[#2E3D37] active:scale-95 font-body font-semibold text-xs transition-all shadow-sm"
             >
-              <Navigation className="w-4 h-4 text-[#F6B800]" />
+              <Navigation className="w-4 h-4 text-[#F2B84B]" />
               <span>Navigate</span>
             </button>
           </div>
@@ -319,26 +310,26 @@ export const GoPage: React.FC = () => {
 
         {/* Nearby Pitstop Callout if Available */}
         {nearbyPitstop && (
-          <div className="mt-2.5 p-2.5 bg-[#FFF9E6] border-2 border-[#0E0E0E] rounded-[4px] shadow-hard-sm flex items-center justify-between text-xs font-mono">
+          <div className="mt-2.5 p-3 bg-[var(--color-marigold-tint)] border border-[var(--color-marigold)]/30 rounded-xl shadow-sm flex items-center justify-between text-xs font-body">
             <div className="flex items-center gap-2">
-              <Utensils className="w-4 h-4 text-[#E58A00]" />
-              <span className="font-bold text-[#0E0E0E]">
-                150M PITSTOP: {nearbyPitstop.name}
+              <Utensils className="w-4 h-4 text-[#8c5e03]" />
+              <span className="font-semibold text-[var(--color-ink)]">
+                150m Pitstop: {nearbyPitstop.name}
               </span>
             </div>
-            <span className="bg-[#2E7D4F] text-white px-2 py-0.5 font-bold text-[10px]">
-              0 KM DETOUR
+            <span className="bg-[var(--color-sage-tint)] text-[var(--color-sage-deep)] px-2.5 py-0.5 rounded-full font-semibold font-mono text-[10px]">
+              0 km detour
             </span>
           </div>
         )}
 
-        {/* Pit-stop Quick Radar (Water, Restroom, Chai, Fuel) */}
+        {/* Pit-stop Quick Radar */}
         <PitstopRadarRow className="mt-3" showSimulatorButton={true} />
       </div>
 
       {/* 3. MAP TAKES THE MIDDLE */}
-      <div className="max-w-4xl mx-auto w-full px-3 py-3 flex-1 min-h-[260px] sm:min-h-[340px]">
-        <div className="w-full h-full min-h-[260px] sm:min-h-[340px] rounded-[6px] overflow-hidden border-2 border-[#0E0E0E] shadow-hard">
+      <div className="max-w-4xl mx-auto w-full px-4 py-3 flex-1 min-h-[260px] sm:min-h-[340px]">
+        <div className="w-full h-full min-h-[260px] sm:min-h-[340px] rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-sm">
           <TransitLeafletMap
             stops={stops}
             activeStopId={currentStop.id}
@@ -352,26 +343,26 @@ export const GoPage: React.FC = () => {
       </div>
 
       {/* 4. BOTTOM TWO GIANT BUTTONS (HANDLEBAR OPERABLE) */}
-      <div className="sticky bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-[#0E0E0E] p-3 shadow-[0_-4px_0_0_#0E0E0E]">
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-[var(--color-surface)]/95 backdrop-blur-md border-t border-[var(--color-border)] p-3.5 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-lg">
         <div className="max-w-md mx-auto space-y-2">
-          {/* Giant Primary Button: "Delivered / Next" (72px Tall, Full Width, Taxi Yellow) */}
+          {/* Giant Primary Button: "Delivered / Next" (72px Tall, Full Width, Marigold Pill) */}
           <button
             type="button"
             onClick={handleMarkDelivered}
-            className="w-full h-[72px] px-6 rounded-[6px] border-2 border-[#0E0E0E] bg-[#F6B800] text-[#0E0E0E] font-display font-black text-xl tracking-tight shadow-hard hover:bg-[#e0a700] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-3 transition-all cursor-pointer select-none"
+            className="w-full h-[72px] px-6 rounded-full bg-[var(--color-marigold)] hover:bg-[var(--color-marigold-hover)] text-[#1F2A27] font-display font-bold text-xl tracking-tight shadow-md active:scale-[0.98] flex items-center justify-center gap-3 transition-all cursor-pointer select-none"
           >
-            <CheckCircle2 className="w-7 h-7 stroke-[3]" />
-            <span>DELIVERED / NEXT STOP</span>
+            <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
+            <span>Delivered / Next Stop</span>
           </button>
 
           {/* Secondary Giant Button: "Can't deliver" */}
           <button
             type="button"
             onClick={() => setIsCantDeliverOpen(true)}
-            className="w-full h-12 px-4 rounded-[6px] border-2 border-[#0E0E0E] bg-[#FFFFFF] text-[#0E0E0E] hover:bg-[#F4F1EA] active:bg-[#E8E4DA] font-display font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer select-none"
+            className="w-full h-12 px-4 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-bg-sunken)] text-[var(--color-ink-secondary)] font-body font-semibold text-xs tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer select-none active:scale-[0.99]"
           >
-            <XCircle className="w-5 h-5 text-[#D7372B]" />
-            <span>CAN’T DELIVER (CHOOSE REASON)</span>
+            <XCircle className="w-4 h-4 text-[var(--color-priority-high)]" />
+            <span>Can't Deliver (Choose Reason)</span>
           </button>
         </div>
       </div>
@@ -396,36 +387,36 @@ export const GoPage: React.FC = () => {
 
       {/* 7. NAVIGATION HUD GUIDANCE MODAL */}
       {navModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-          <div className="bg-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard-lg max-w-sm w-full p-5 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b-2 border-[#0E0E0E] pb-2 mb-3">
-              <span className="font-mono text-xs font-bold text-[#0E0E0E] uppercase flex items-center gap-1.5">
-                <Navigation className="w-4 h-4 text-[#F6B800]" />
-                RIDER RADAR GUIDANCE
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-xl max-w-sm w-full p-5 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2.5 mb-3">
+              <span className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wide flex items-center gap-1.5">
+                <Navigation className="w-4 h-4 text-[var(--color-marigold)]" />
+                Rider Radar Guidance
               </span>
-              <span className="font-mono text-xs font-bold bg-[#F6B800] text-[#0E0E0E] px-1.5 py-0.5 border border-[#0E0E0E]">
+              <span className="font-mono text-[10px] font-semibold bg-[var(--color-marigold-tint)] text-[#8c5e03] px-2 py-0.5 rounded-full">
                 LIVE
               </span>
             </div>
 
             <div className="space-y-3 font-body text-xs">
-              <div className="p-3 bg-[#F4F1EA] border border-[#0E0E0E] rounded-[4px]">
-                <div className="font-mono text-[10px] text-[#0E0E0E]/60 uppercase">
-                  CURRENT CORRIDOR LEG:
+              <div className="p-3 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
+                <div className="font-mono text-[10px] text-[var(--color-ink-muted)] uppercase">
+                  Current Corridor Leg:
                 </div>
-                <div className="font-display font-bold text-sm text-[#0E0E0E] mt-0.5">
+                <div className="font-body font-bold text-sm text-[var(--color-ink)] mt-0.5">
                   Heading to {currentStop.landmark}
                 </div>
-                <div className="font-mono text-xs text-[#2E7D4F] font-bold mt-1">
+                <div className="font-mono text-xs text-[var(--color-sage-deep)] font-semibold mt-1">
                   Straight on main road · ~{currentStop.etaMinutes} mins
                 </div>
               </div>
 
-              <div className="p-3 bg-[#FFF9E6] border border-[#0E0E0E] rounded-[4px]">
-                <div className="font-mono text-[10px] text-[#0E0E0E]/60 uppercase">
-                  TRAFFIC HINT:
+              <div className="p-3 bg-[var(--color-marigold-tint)]/60 border border-[var(--color-marigold)]/30 rounded-xl">
+                <div className="font-mono text-[10px] text-[#8c5e03] uppercase font-semibold">
+                  Traffic Hint:
                 </div>
-                <div className="text-[#0E0E0E] font-medium mt-0.5">
+                <div className="text-[var(--color-ink)] font-medium mt-0.5">
                   Keep left before the flyover signal to avoid auto-rickshaw queue.
                 </div>
               </div>
@@ -435,7 +426,7 @@ export const GoPage: React.FC = () => {
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 bg-[#F6B800] hover:bg-[#e0a700] text-[#0E0E0E] border-2 border-[#0E0E0E] rounded-[4px] font-display font-bold text-xs uppercase shadow-hard-sm"
+                  className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 bg-[var(--color-marigold)] hover:bg-[var(--color-marigold-hover)] text-[var(--color-ink)] rounded-full font-body font-semibold text-xs shadow-sm transition-all"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>Launch Google Maps GPS</span>

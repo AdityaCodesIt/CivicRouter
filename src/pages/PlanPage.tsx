@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoute } from '../context/RouteContext';
 import { Button } from '../components/common/Button';
-import { PriorityBadge } from '../components/common/PriorityBadge';
 import { StopCard } from '../components/common/StopCard';
 import { EmptyState } from '../components/common/EmptyState';
 import { MapPickerModal } from '../components/plan/MapPickerModal';
@@ -18,22 +17,19 @@ import {
 } from '../data/mockStops';
 import {
   Plus,
-  ArrowRight,
   Sparkles,
   MapPin,
   Clipboard,
   Building,
-  Navigation,
   Clock,
   Phone,
   IndianRupee,
-  AlertCircle,
-  RotateCcw,
   Search,
   ArrowDownRight,
   ArrowUpRight,
-  Check,
-  Compass,
+  Flame,
+  CircleDot,
+  Circle,
 } from 'lucide-react';
 
 export const PlanPage: React.FC = () => {
@@ -220,40 +216,40 @@ export const PlanPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 pb-28 md:pb-12">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 pb-28 md:pb-16">
       {/* 1. TOP HEADER & COUNTER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-[#0E0E0E] pb-5 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-5 mb-6">
         <div>
           {/* Manifest Count Badge */}
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="px-2.5 py-0.5 bg-[#15171A] text-white font-mono text-xs font-bold uppercase rounded-[2px] border border-[#0E0E0E]">
-              {stops.length} STOPS · {stats.highPriorityCount} HIGH
+            <span className="px-3 py-1 bg-[var(--color-surface)] text-[var(--color-ink)] font-mono text-xs font-semibold uppercase rounded-full border border-[var(--color-border)] shadow-sm">
+              {stops.length} STOPS · {stats.highPriorityCount} HIGH PRIORITY
             </span>
 
             {demoLoadedNotification && (
-              <span className="px-2 py-0.5 bg-[#2E7D4F] text-white font-mono text-xs font-bold rounded-[2px] animate-in fade-in">
+              <span className="px-3 py-1 bg-[var(--color-sage-tint)] text-[var(--color-sage-deep)] border border-[var(--color-sage)] font-body text-xs font-semibold rounded-full animate-in fade-in">
                 ✓ 8 Mumbai Stops Loaded!
               </span>
             )}
           </div>
 
-          <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-[#0E0E0E]">
+          <h1 className="font-display font-bold text-2xl sm:text-3xl text-[var(--color-ink)]">
             Multi-Stop Manifest & Input
           </h1>
-          <p className="font-body text-xs sm:text-sm text-[#0E0E0E]/75 mt-0.5">
+          <p className="font-body text-xs sm:text-sm text-[var(--color-ink-secondary)] mt-0.5">
             Type with Mumbai autocomplete, drop a map pin, or paste a WhatsApp list. Reorder and set priorities before dispatching.
           </p>
         </div>
 
         {/* Action Buttons: Try Demo Day & Paste List & Drop Pin */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="grid grid-cols-3 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
           <Button
             variant="primary"
             size="md"
             onClick={handleLoadDemoDay}
-            icon={<Sparkles className="w-4 h-4 text-[#0E0E0E]" />}
+            icon={<Sparkles className="w-4 h-4 text-[#1F2A27]" />}
           >
-            Try Demo Day (8 Stops)
+            <span className="truncate">Demo Day</span>
           </Button>
 
           <Button
@@ -262,35 +258,35 @@ export const PlanPage: React.FC = () => {
             onClick={() => setIsPasteModalOpen(true)}
             icon={<Clipboard className="w-4 h-4" />}
           >
-            Paste List
+            <span className="truncate">Paste List</span>
           </Button>
 
           <Button
             variant="secondary"
             size="md"
             onClick={() => setIsMapPickerOpen(true)}
-            icon={<MapPin className="w-4 h-4 text-[#D7372B]" />}
+            icon={<MapPin className="w-4 h-4 text-[var(--color-priority-high)]" />}
           >
-            Drop Pin
+            <span className="truncate">Drop Pin</span>
           </Button>
         </div>
       </div>
 
       {/* 2. QUICK ADD MUMBAI HUBS STRIP */}
       <div className="mb-6">
-        <div className="font-mono text-[11px] font-bold text-[#0E0E0E]/70 uppercase mb-2 flex items-center gap-1.5">
-          <Building className="w-3.5 h-3.5 text-[#0E0E0E]" />
+        <div className="font-body text-xs font-semibold text-[var(--color-ink-muted)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <Building className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
           <span>Quick Add Popular Mumbai Hubs:</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
           {quickAddLandmarks.map((lm) => (
             <button
               key={lm.name}
               type="button"
               onClick={() => handleQuickAdd(lm)}
-              className="px-2.5 py-1 bg-white hover:bg-[#F6B800] border-2 border-[#0E0E0E] rounded-[4px] font-mono text-xs font-bold text-[#0E0E0E] shadow-hard-sm active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer flex items-center gap-1"
+              className="px-3 py-1.5 bg-[var(--color-surface)] hover:bg-[var(--color-marigold-tint)] border border-[var(--color-border)] rounded-full font-body text-xs font-medium text-[var(--color-ink)] shadow-sm hover:border-[var(--color-marigold)] transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 whitespace-nowrap"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3 h-3 text-[var(--color-marigold)]" />
               <span>{lm.name}</span>
             </button>
           ))}
@@ -300,12 +296,12 @@ export const PlanPage: React.FC = () => {
       {/* 3. TWO-PANE LAYOUT: INPUT FORM (LEFT) & DRAGGABLE STOPCARDS LIST (RIGHT) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* LEFT PANE: INPUT FORM */}
-        <div className="lg:col-span-5 bg-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard p-5">
-          <div className="flex items-center justify-between border-b-2 border-[#0E0E0E] pb-3 mb-4">
-            <span className="font-mono text-xs font-bold text-[#0E0E0E] uppercase">
-              ADD SINGLE STOP
+        <div className="lg:col-span-5 soft-card bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm p-5 sm:p-6">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3 mb-4">
+            <span className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wider">
+              Add Single Stop
             </span>
-            <span className="font-mono text-[11px] text-[#0E0E0E]/60">
+            <span className="font-mono text-xs text-[var(--color-ink-muted)]">
               Corridor: South-Central Run
             </span>
           </div>
@@ -313,41 +309,41 @@ export const PlanPage: React.FC = () => {
           <form onSubmit={handleAddStopSubmit} className="space-y-4">
             {/* Pickup vs Drop Type Selector */}
             <div>
-              <label className="block font-display font-bold text-xs uppercase mb-1">
+              <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1.5">
                 Stop Type *
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setType('drop')}
-                  className={`h-11 px-3 rounded-[4px] border-2 border-[#0E0E0E] font-display font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`h-11 px-3 rounded-xl border font-body font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     type === 'drop'
-                      ? 'bg-[#15171A] text-white shadow-hard-sm'
-                      : 'bg-[#F4F1EA] text-[#0E0E0E] hover:bg-white'
+                      ? 'bg-[#E3EEE6] dark:bg-[#1E2B25] text-[#4F7A66] dark:text-[#A9C4B0] border-[#4F7A66] dark:border-[#A9C4B0] font-bold shadow-sm'
+                      : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
                   }`}
                 >
-                  <ArrowDownRight className="w-4 h-4 text-[#F6B800]" />
-                  <span>DROP / DELIVER</span>
+                  <ArrowDownRight className={`w-4 h-4 ${type === 'drop' ? 'text-[#4F7A66] dark:text-[#A9C4B0]' : 'text-[var(--color-ink-muted)]'}`} />
+                  <span>Delivery / Drop</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setType('pickup')}
-                  className={`h-11 px-3 rounded-[4px] border-2 border-[#0E0E0E] font-display font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`h-11 px-3 rounded-xl border font-body font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     type === 'pickup'
-                      ? 'bg-[#E58A00] text-[#0E0E0E] shadow-hard-sm'
-                      : 'bg-[#F4F1EA] text-[#0E0E0E] hover:bg-white'
+                      ? 'bg-[#FBEBC6] dark:bg-[#2C2415] text-[#8c5e03] dark:text-[#F2B84B] border-[#8c5e03] dark:border-[#F2B84B] font-bold shadow-sm'
+                      : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
                   }`}
                 >
-                  <ArrowUpRight className="w-4 h-4" />
-                  <span>PICKUP / RETURN</span>
+                  <ArrowUpRight className={`w-4 h-4 ${type === 'pickup' ? 'text-[#8c5e03] dark:text-[#F2B84B]' : 'text-[var(--color-ink-muted)]'}`} />
+                  <span>Pickup / Return</span>
                 </button>
               </div>
             </div>
 
             {/* Recipient / Business Name */}
             <div>
-              <label className="block font-display font-bold text-xs uppercase mb-1">
+              <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1">
                 Recipient / Firm Name *
               </label>
               <input
@@ -356,22 +352,22 @@ export const PlanPage: React.FC = () => {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="e.g. Dr. Suresh Mehta / WeWork Reception"
-                className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
               />
             </div>
 
             {/* Address with Mock Autocomplete */}
             <div className="relative" ref={autocompleteRef}>
               <div className="flex items-center justify-between mb-1">
-                <label className="block font-display font-bold text-xs uppercase">
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase">
                   Address / Search Location *
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsMapPickerOpen(true)}
-                  className="font-mono text-[11px] font-bold text-[#E58A00] hover:underline flex items-center gap-1"
+                  className="font-body text-xs font-semibold text-[#8c5e03] hover:underline flex items-center gap-1"
                 >
-                  <MapPin className="w-3 h-3" />
+                  <MapPin className="w-3 h-3 text-[var(--color-priority-high)]" />
                   <span>Drop Pin on Map</span>
                 </button>
               </div>
@@ -388,25 +384,25 @@ export const PlanPage: React.FC = () => {
                   }}
                   onFocus={() => setShowSuggestions(true)}
                   placeholder="Type landmark or street (e.g. Dadar Portuguese, BKC Jio, Lower Parel)"
-                  className="w-full h-11 pl-9 pr-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 pl-10 pr-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
-                <Search className="w-4 h-4 text-[#0E0E0E]/50 absolute left-3 top-3.5" />
+                <Search className="w-4 h-4 text-[var(--color-ink-muted)] absolute left-3.5 top-3.5" />
               </div>
 
               {/* Autocomplete Dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-white border-2 border-[#0E0E0E] rounded-[4px] shadow-hard-lg z-30 max-h-56 overflow-y-auto">
-                  <div className="p-2 bg-[#15171A] text-white font-mono text-[10px] font-bold uppercase">
-                    MUMBAI LOCALITY AUTOCOMPLETE ({suggestions.length} MATCHES)
+                <div className="absolute left-0 right-0 top-full mt-1 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-30 max-h-56 overflow-y-auto">
+                  <div className="p-2 bg-[var(--color-bg-sunken)] text-[var(--color-ink-muted)] font-mono text-[10px] font-semibold uppercase border-b border-[var(--color-border)]">
+                    Mumbai Locality Autocomplete ({suggestions.length} matches)
                   </div>
                   {suggestions.map((place) => (
                     <div
                       key={place.name}
                       onClick={() => handleSelectSuggestion(place)}
-                      className="p-2.5 hover:bg-[#F6B800] hover:text-[#0E0E0E] border-b border-[#0E0E0E]/15 last:border-b-0 cursor-pointer transition-colors"
+                      className="p-3 hover:bg-[var(--color-marigold-tint)] border-b border-[var(--color-border)] last:border-b-0 cursor-pointer transition-colors"
                     >
-                      <div className="font-display font-bold text-xs">{place.name}</div>
-                      <div className="font-body text-[11px] text-[#0E0E0E]/70">
+                      <div className="font-body font-semibold text-xs text-[var(--color-ink)]">{place.name}</div>
+                      <div className="font-body text-[11px] text-[var(--color-ink-secondary)]">
                         {place.address} · {place.landmark} ({place.area})
                       </div>
                     </div>
@@ -418,7 +414,7 @@ export const PlanPage: React.FC = () => {
             {/* Area & Landmark */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-display font-bold text-xs uppercase mb-1">
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1">
                   Area / Zone *
                 </label>
                 <input
@@ -427,12 +423,12 @@ export const PlanPage: React.FC = () => {
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
                   placeholder="e.g. Dadar West"
-                  className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
               </div>
 
               <div>
-                <label className="block font-display font-bold text-xs uppercase mb-1">
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1">
                   Landmark
                 </label>
                 <input
@@ -440,54 +436,63 @@ export const PlanPage: React.FC = () => {
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
                   placeholder="e.g. Opp. Plaza Cinema"
-                  className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
-            {/* Priority Selector (3 Big Segmented Buttons) */}
+            {/* Priority Selector (3 Distinct Buttons with Icon + Shape) */}
             <div>
-              <label className="block font-display font-bold text-xs uppercase mb-1.5">
-                Priority Tier (3 Big Segmented Buttons) *
+              <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1.5">
+                Priority Tier *
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setPriority('high')}
-                  className={`min-h-[50px] p-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+                  className={`min-h-[50px] p-2 rounded-xl border font-body text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                     priority === 'high'
-                      ? 'bg-[#D7372B] text-white shadow-hard-sm ring-2 ring-[#0E0E0E]'
-                      : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                      ? 'bg-[var(--color-priority-high-bg)] text-[var(--color-priority-high)] border-[var(--color-priority-high)] ring-2 ring-[var(--color-priority-high)]/20 shadow-sm'
+                      : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
                   }`}
                 >
-                  <span className="font-extrabold">HIGH</span>
-                  <span className="text-[10px] opacity-90 font-normal">Urgent</span>
+                  <div className="flex items-center gap-1 font-bold">
+                    <Flame className="w-3.5 h-3.5 fill-current" />
+                    <span>High</span>
+                  </div>
+                  <span className="text-[10px] opacity-80 font-normal">Urgent</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPriority('medium')}
-                  className={`min-h-[50px] p-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+                  className={`min-h-[50px] p-2 rounded-xl border font-body text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                     priority === 'medium'
-                      ? 'bg-[#E58A00] text-[#0E0E0E] shadow-hard-sm ring-2 ring-[#0E0E0E]'
-                      : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                      ? 'bg-[var(--color-priority-med-bg)] text-[#8c5e03] border-[var(--color-priority-med)] ring-2 ring-[var(--color-priority-med)]/20 shadow-sm'
+                      : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
                   }`}
                 >
-                  <span className="font-extrabold">MEDIUM</span>
-                  <span className="text-[10px] opacity-90 font-normal">Scheduled</span>
+                  <div className="flex items-center gap-1 font-bold">
+                    <CircleDot className="w-3.5 h-3.5 fill-current" />
+                    <span>Medium</span>
+                  </div>
+                  <span className="text-[10px] opacity-80 font-normal">Scheduled</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPriority('low')}
-                  className={`min-h-[50px] p-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+                  className={`min-h-[50px] p-2 rounded-xl border font-body text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                     priority === 'low'
-                      ? 'bg-[#3E7C7A] text-white shadow-hard-sm ring-2 ring-[#0E0E0E]'
-                      : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                      ? 'bg-[var(--color-priority-low-bg)] text-[var(--color-priority-low)] border-[var(--color-priority-low)] ring-2 ring-[var(--color-priority-low)]/20 shadow-sm'
+                      : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
                   }`}
                 >
-                  <span className="font-extrabold">LOW</span>
-                  <span className="text-[10px] opacity-90 font-normal">Flexible</span>
+                  <div className="flex items-center gap-1 font-bold">
+                    <Circle className="w-3.5 h-3.5" />
+                    <span>Low</span>
+                  </div>
+                  <span className="text-[10px] opacity-80 font-normal">Flexible</span>
                 </button>
               </div>
             </div>
@@ -495,8 +500,8 @@ export const PlanPage: React.FC = () => {
             {/* Optional Fields: Deadline Time Picker & Customer Phone */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
                   <span>Deadline Time</span>
                 </label>
                 <input
@@ -504,21 +509,23 @@ export const PlanPage: React.FC = () => {
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
                   placeholder="e.g. 01:30 PM"
-                  className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-mono text-xs bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
               </div>
 
               <div>
-                <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-                  <Phone className="w-3.5 h-3.5" />
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1 flex items-center gap-1">
+                  <Phone className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
                   <span>Phone Number</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98200 XXXXX"
-                  className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-mono text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -526,23 +533,25 @@ export const PlanPage: React.FC = () => {
             {/* Optional COD Amount & Parcel Count */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-                  <IndianRupee className="w-3.5 h-3.5" />
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1 flex items-center gap-1">
+                  <IndianRupee className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
                   <span>COD Amount (₹)</span>
                 </label>
                 <input
                   type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   min={0}
                   step={10}
                   value={codAmount}
                   onChange={(e) => setCodAmount(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="0 (Prepaid)"
-                  className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-mono text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
               </div>
 
               <div>
-                <label className="block font-display font-bold text-xs uppercase mb-1">
+                <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1">
                   Parcel Count
                 </label>
                 <input
@@ -551,14 +560,14 @@ export const PlanPage: React.FC = () => {
                   max={20}
                   value={parcels}
                   onChange={(e) => setParcels(Number(e.target.value))}
-                  className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                  className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-mono text-xs bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             {/* Note / Special Instructions */}
             <div>
-              <label className="block font-display font-bold text-xs uppercase mb-1">
+              <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase mb-1">
                 Rider Delivery Instructions
               </label>
               <input
@@ -566,7 +575,7 @@ export const PlanPage: React.FC = () => {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="e.g. Ring bell twice / 3rd floor no elevator"
-                className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+                className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
               />
             </div>
 
@@ -587,12 +596,12 @@ export const PlanPage: React.FC = () => {
 
         {/* RIGHT PANE: DRAGGABLE STOPCARDS LIST */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between border-b-2 border-[#0E0E0E] pb-3">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
             <div>
-              <span className="font-mono text-xs font-bold text-[#0E0E0E] uppercase block">
-                MANIFEST SEQUENCE ({stops.length} STOPS)
+              <span className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wider block">
+                Manifest Sequence ({stops.length} Stops)
               </span>
-              <span className="font-body text-xs text-[#0E0E0E]/70">
+              <span className="font-body text-xs text-[var(--color-ink-muted)]">
                 Drag handle to reorder, swipe left to delete, or tap to edit details.
               </span>
             </div>
@@ -600,7 +609,7 @@ export const PlanPage: React.FC = () => {
             <button
               type="button"
               onClick={handleLoadDemoDay}
-              className="font-mono text-xs font-bold text-[#0E0E0E] hover:text-[#E58A00] underline cursor-pointer"
+              className="font-body text-xs font-semibold text-[#8c5e03] hover:underline cursor-pointer"
             >
               Reset to Demo Day
             </button>
@@ -640,13 +649,13 @@ export const PlanPage: React.FC = () => {
       </div>
 
       {/* 4. STICKY BOTTOM ACTION BAR */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] border-t-2 border-[#0E0E0E] p-3 shadow-[0_-4px_0_0_#0E0E0E]">
+      <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px))] md:bottom-0 left-0 right-0 z-30 md:z-40 bg-[var(--color-surface)]/95 backdrop-blur-md border-t border-[var(--color-border)] p-3 sm:p-3.5 shadow-lg">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <div className="hidden sm:block">
-            <div className="font-mono text-xs font-bold text-[#0E0E0E]">
+            <div className="font-body text-xs font-bold text-[var(--color-ink)]">
               {stops.length} STOPS READY · {stats.highPriorityCount} HIGH PRIORITY
             </div>
-            <div className="font-mono text-[11px] text-[#0E0E0E]/70">
+            <div className="font-mono text-xs text-[var(--color-ink-secondary)]">
               {stops.length < 2
                 ? 'Add at least 2 stops to unlock route optimization'
                 : `Corridor run ~${stats.totalKm} KM · ~${stats.totalMinutes} mins`}
@@ -662,7 +671,7 @@ export const PlanPage: React.FC = () => {
                 optimizeRoute();
                 navigate('/route');
               }}
-              icon={<Sparkles className="w-5 h-5 text-[#0E0E0E] stroke-[2.5]" />}
+              icon={<Sparkles className="w-5 h-5 text-[#1F2A27] stroke-[2.5]" />}
               fullWidth
             >
               {stops.length < 2

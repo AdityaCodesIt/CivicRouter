@@ -3,7 +3,7 @@ import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { PriorityBadge } from '../common/PriorityBadge';
 import { DeliveryStop, PriorityLevel, StopType } from '../../data/mockStops';
-import { Clipboard, ArrowDownRight, ArrowUpRight, Check, AlertCircle } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface ParsedPreviewItem {
   id: string;
@@ -149,8 +149,8 @@ Rohit Varma - Colaba Market Road - 9167230981`
       size="lg"
       footer={
         <div className="flex items-center justify-between w-full">
-          <div className="font-mono text-xs font-bold text-[#0E0E0E]">
-            {parsedItems.length} STOPS PARSED
+          <div className="font-mono text-xs font-semibold text-[var(--color-ink-secondary)]">
+            {parsedItems.length} stops parsed
           </div>
           <div className="flex items-center gap-2">
             <Button variant="secondary" size="md" onClick={onClose}>
@@ -161,7 +161,7 @@ Rohit Varma - Colaba Market Road - 9167230981`
               size="md"
               disabled={parsedItems.length === 0}
               onClick={handleImportAll}
-              icon={<Check className="w-4 h-4 stroke-[3]" />}
+              icon={<Check className="w-4 h-4 stroke-[2.5]" />}
             >
               Import {parsedItems.length} Stops
             </Button>
@@ -171,7 +171,7 @@ Rohit Varma - Colaba Market Road - 9167230981`
     >
       <div className="space-y-4">
         <div>
-          <label className="block font-display font-bold text-xs uppercase mb-1">
+          <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] mb-1 uppercase tracking-wide">
             Raw Addresses (One Per Line)
           </label>
           <textarea
@@ -179,58 +179,58 @@ Rohit Varma - Colaba Market Road - 9167230981`
             onChange={(e) => setRawText(e.target.value)}
             rows={5}
             placeholder={`Name - Address / Area - Phone - Urgent / COD 500\nRahul - Dadar West - 9820144521 - urgent\nPriya - Lower Parel - 9833411209 - pickup return`}
-            className="w-full p-3 font-mono text-xs border-2 border-[#0E0E0E] rounded-[4px] bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+            className="w-full p-3 font-mono text-xs border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
           />
-          <span className="font-mono text-[11px] text-[#0E0E0E]/60 mt-1 block">
+          <span className="font-body text-[11px] text-[var(--color-ink-muted)] mt-1 block">
             Tip: RouteWala detects 'urgent', 'pickup', phone numbers, and 'COD 500' automatically.
           </span>
         </div>
 
         {/* Live Parsed Preview Table */}
         <div>
-          <div className="font-mono text-xs font-bold text-[#0E0E0E] uppercase mb-2 flex items-center justify-between">
-            <span>LIVE PARSER PREVIEW ({parsedItems.length} DETECTED)</span>
-            <span className="text-[#2E7D4F]">✓ AUTO CONFIGURED</span>
+          <div className="font-body text-xs font-semibold text-[var(--color-ink)] uppercase mb-2 flex items-center justify-between">
+            <span>Live Parser Preview ({parsedItems.length} detected)</span>
+            <span className="text-[var(--color-status-success)] font-medium">✓ Auto configured</span>
           </div>
 
-          <div className="border-2 border-[#0E0E0E] rounded-[4px] overflow-hidden max-h-56 overflow-y-auto bg-white">
+          <div className="border border-[var(--color-border)] rounded-xl overflow-hidden max-h-56 overflow-y-auto bg-[var(--color-surface)]">
             <table className="w-full text-left text-xs font-body border-collapse">
               <thead>
-                <tr className="bg-[#15171A] text-white font-mono text-[10px] uppercase border-b border-[#0E0E0E]">
-                  <th className="p-2 border-r border-[#0E0E0E]/30">Type</th>
-                  <th className="p-2 border-r border-[#0E0E0E]/30">Recipient & Address</th>
-                  <th className="p-2 border-r border-[#0E0E0E]/30">Area</th>
-                  <th className="p-2 border-r border-[#0E0E0E]/30">Priority</th>
-                  <th className="p-2">COD</th>
+                <tr className="bg-[var(--color-bg-sunken)] text-[var(--color-ink-secondary)] font-body text-[11px] font-semibold uppercase border-b border-[var(--color-border)]">
+                  <th className="p-2.5 border-r border-[var(--color-border)]">Type</th>
+                  <th className="p-2.5 border-r border-[var(--color-border)]">Recipient & Address</th>
+                  <th className="p-2.5 border-r border-[var(--color-border)]">Area</th>
+                  <th className="p-2.5 border-r border-[var(--color-border)]">Priority</th>
+                  <th className="p-2.5">COD</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#0E0E0E]/10 font-medium">
+              <tbody className="divide-y divide-[var(--color-border)] font-normal">
                 {parsedItems.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-[#F4F1EA]">
-                    <td className="p-2 border-r border-[#0E0E0E]/10 font-mono text-[10px] font-bold">
+                  <tr key={idx} className="hover:bg-[var(--color-bg-sunken)] transition-colors">
+                    <td className="p-2.5 border-r border-[var(--color-border)] font-body text-[11px] font-medium">
                       <span
-                        className={`px-1 py-0.5 rounded-[2px] uppercase ${
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
                           item.type === 'pickup'
-                            ? 'bg-[#E58A00] text-[#0E0E0E]'
-                            : 'bg-[#15171A] text-white'
+                            ? 'bg-[var(--color-marigold-tint)] text-[#8c5e03]'
+                            : 'bg-[var(--color-sky-tint)] text-[var(--color-ink)]'
                         }`}
                       >
                         {item.type}
                       </span>
                     </td>
-                    <td className="p-2 border-r border-[#0E0E0E]/10">
-                      <div className="font-bold text-[#0E0E0E]">{item.recipientName}</div>
-                      <div className="text-[11px] text-[#0E0E0E]/70 truncate max-w-[200px]">
+                    <td className="p-2.5 border-r border-[var(--color-border)]">
+                      <div className="font-semibold text-[var(--color-ink)]">{item.recipientName}</div>
+                      <div className="text-[11px] text-[var(--color-ink-muted)] truncate max-w-[200px]">
                         {item.address}
                       </div>
                     </td>
-                    <td className="p-2 border-r border-[#0E0E0E]/10 font-mono text-[11px]">
+                    <td className="p-2.5 border-r border-[var(--color-border)] font-mono text-[11px] text-[var(--color-ink-secondary)]">
                       {item.area}
                     </td>
-                    <td className="p-2 border-r border-[#0E0E0E]/10">
+                    <td className="p-2.5 border-r border-[var(--color-border)]">
                       <PriorityBadge priority={item.priority} size="sm" showLabel={false} />
                     </td>
-                    <td className="p-2 font-mono text-[11px]">
+                    <td className="p-2.5 font-mono text-[11px] text-[var(--color-ink)] font-medium">
                       {item.codAmount > 0 ? `₹${item.codAmount}` : '—'}
                     </td>
                   </tr>

@@ -11,7 +11,6 @@ import {
   WishlistItem,
   ErrandCategory,
 } from '../data/wishlistItems';
-import { mumbaiPlacesDatabase } from '../data/mockStops';
 import {
   ShoppingBag,
   Pill,
@@ -25,9 +24,6 @@ import {
   Trash2,
   Check,
   Compass,
-  MapPin,
-  Clock,
-  ArrowRight,
   Coffee,
 } from 'lucide-react';
 
@@ -41,7 +37,6 @@ export const WishlistPage: React.FC = () => {
     wishlistSettings,
     updateWishlistSettings,
     triggerMockOnTheWayPrompt,
-    t,
   } = useRoute();
 
   // Category filter
@@ -66,20 +61,20 @@ export const WishlistPage: React.FC = () => {
     const safeCat = (cat || 'shop').toLowerCase();
     switch (safeCat) {
       case 'shop':
-        return <ShoppingBag className="w-4 h-4 text-[#0E0E0E]" />;
+        return <ShoppingBag className="w-4 h-4 text-[var(--color-sky-accent)]" />;
       case 'pharmacy':
-        return <Pill className="w-4 h-4 text-[#D7372B]" />;
+        return <Pill className="w-4 h-4 text-[var(--color-priority-high)]" />;
       case 'atm':
-        return <CreditCard className="w-4 h-4 text-[#3E7C7A]" />;
+        return <CreditCard className="w-4 h-4 text-[var(--color-sage-deep)]" />;
       case 'food':
-        return <Utensils className="w-4 h-4 text-[#E58A00]" />;
+        return <Utensils className="w-4 h-4 text-[#8c5e03]" />;
       case 'fuel':
-        return <Fuel className="w-4 h-4 text-[#D7372B]" />;
+        return <Fuel className="w-4 h-4 text-[var(--color-priority-high)]" />;
       case 'restroom':
-        return <Droplets className="w-4 h-4 text-[#2E7D4F]" />;
+        return <Droplets className="w-4 h-4 text-[var(--color-sage-deep)]" />;
       case 'chai':
       default:
-        return <Coffee className="w-4 h-4 text-[#E58A00]" />;
+        return <Coffee className="w-4 h-4 text-[#8c5e03]" />;
     }
   };
 
@@ -109,22 +104,22 @@ export const WishlistPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
       {/* 1. PAGE HEADER STRIP */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-[#0E0E0E] pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-xs font-bold text-[#E58A00] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="font-mono text-xs font-semibold text-[#8c5e03] uppercase tracking-wider flex items-center gap-1.5">
               <Compass className="w-4 h-4" />
-              ZERO DEAD-KILOMETERS ENGINE
+              Zero Dead-Kilometers Engine
             </span>
-            <span className="bg-[#15171A] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded">
-              {wishlist.length} SAVED ERRANDS
+            <span className="bg-[var(--color-bg-sunken)] text-[var(--color-ink)] border border-[var(--color-border)] font-mono text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+              {wishlist.length} saved errands
             </span>
           </div>
 
-          <h1 className="font-display font-extrabold text-3xl text-[#0E0E0E]">
+          <h1 className="font-display font-bold text-3xl text-[var(--color-ink)]">
             On-The-Way Errand Wishlist
           </h1>
-          <p className="font-body text-xs sm:text-sm text-[#0E0E0E]/75 mt-0.5 max-w-2xl">
+          <p className="font-body text-xs sm:text-sm text-[var(--color-ink-secondary)] mt-0.5 max-w-2xl">
             Add personal errands (buy shoes at Puma, pick up medicine, visit an ATM). RouteWala scans your delivery route and alerts you only when you are passing within your detour budget.
           </p>
         </div>
@@ -134,10 +129,10 @@ export const WishlistPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowSettingsDrawer(!showSettingsDrawer)}
-            className={`min-h-[44px] px-3.5 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`min-h-[44px] px-4 rounded-full border border-[var(--color-border)] font-body text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
               showSettingsDrawer
-                ? 'bg-[#15171A] text-white shadow-hard-sm'
-                : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                ? 'bg-[#F2B84B] text-[#1F2A27] border-[#E0A11B] font-bold shadow-sm'
+                : 'bg-[var(--color-surface)] text-[var(--color-ink)] hover:bg-[var(--color-bg-sunken)]'
             }`}
           >
             <Sliders className="w-4 h-4" />
@@ -162,27 +157,27 @@ export const WishlistPage: React.FC = () => {
       {/* 3. PIT-STOP RADAR ROW */}
       <PitstopRadarRow showSimulatorButton={true} />
 
-      {/* 4. SETTINGS DRAWER / PANEL (DETOUR BUDGET, MAX ALERTS, QUIET MODE) */}
+      {/* 4. SETTINGS DRAWER / PANEL */}
       {showSettingsDrawer && (
-        <div className="p-5 bg-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard space-y-4 animate-in fade-in">
-          <div className="flex items-center justify-between border-b-2 border-[#0E0E0E] pb-2">
-            <span className="font-mono text-xs font-bold text-[#0E0E0E] uppercase flex items-center gap-1.5">
-              <Sliders className="w-4 h-4 text-[#F6B800]" />
-              ON-THE-WAY ALERT & BUDGET CONFIGURATION
+        <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm space-y-4 animate-in fade-in">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2.5">
+            <span className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wider flex items-center gap-1.5">
+              <Sliders className="w-4 h-4 text-[var(--color-marigold)]" />
+              On-The-Way Alert & Budget Configuration
             </span>
-            <span className="font-mono text-[10px] text-[#2E7D4F] font-bold">
+            <span className="font-mono text-[10px] text-[var(--color-sage-deep)] font-semibold">
               AUTOSAVED TO DEVICE
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-body text-xs">
             {/* Slider 1: Detour budget per errand */}
-            <div className="p-3 bg-[#F4F1EA] border border-[#0E0E0E] rounded-[4px]">
+            <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="font-display font-bold text-xs uppercase text-[#0E0E0E]">
+                <span className="font-body font-semibold text-xs text-[var(--color-ink)]">
                   Detour Budget Per Errand
                 </span>
-                <span className="font-mono font-extrabold text-sm text-[#E58A00]">
+                <span className="font-mono font-bold text-sm text-[#8c5e03]">
                   +{wishlistSettings.detourBudgetPerErrand} min
                 </span>
               </div>
@@ -197,9 +192,9 @@ export const WishlistPage: React.FC = () => {
                     detourBudgetPerErrand: Number(e.target.value),
                   })
                 }
-                className="w-full accent-[#0E0E0E] cursor-pointer"
+                className="w-full accent-[var(--color-marigold)] cursor-pointer"
               />
-              <div className="flex justify-between font-mono text-[10px] text-[#0E0E0E]/60 mt-1">
+              <div className="flex justify-between font-mono text-[10px] text-[var(--color-ink-muted)] mt-1">
                 <span>0m (Exact path)</span>
                 <span>5m</span>
                 <span>10m max</span>
@@ -207,12 +202,12 @@ export const WishlistPage: React.FC = () => {
             </div>
 
             {/* Slider 2: Total Daily Budget */}
-            <div className="p-3 bg-[#F4F1EA] border border-[#0E0E0E] rounded-[4px]">
+            <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="font-display font-bold text-xs uppercase text-[#0E0E0E]">
+                <span className="font-body font-semibold text-xs text-[var(--color-ink)]">
                   Total Daily Detour Cap
                 </span>
-                <span className="font-mono font-extrabold text-sm text-[#2E7D4F]">
+                <span className="font-mono font-bold text-sm text-[var(--color-sage-deep)]">
                   {wishlistSettings.totalDailyDetourBudget} min total
                 </span>
               </div>
@@ -227,9 +222,9 @@ export const WishlistPage: React.FC = () => {
                     totalDailyDetourBudget: Number(e.target.value),
                   })
                 }
-                className="w-full accent-[#0E0E0E] cursor-pointer"
+                className="w-full accent-[var(--color-sage-deep)] cursor-pointer"
               />
-              <div className="flex justify-between font-mono text-[10px] text-[#0E0E0E]/60 mt-1">
+              <div className="flex justify-between font-mono text-[10px] text-[var(--color-ink-muted)] mt-1">
                 <span>5m</span>
                 <span>15m typical</span>
                 <span>30m</span>
@@ -237,12 +232,12 @@ export const WishlistPage: React.FC = () => {
             </div>
 
             {/* Slider 3: Max alerts per day */}
-            <div className="p-3 bg-[#F4F1EA] border border-[#0E0E0E] rounded-[4px]">
+            <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="font-display font-bold text-xs uppercase text-[#0E0E0E]">
+                <span className="font-body font-semibold text-xs text-[var(--color-ink)]">
                   Max Alerts Per Day
                 </span>
-                <span className="font-mono font-extrabold text-sm text-[#0E0E0E]">
+                <span className="font-mono font-bold text-sm text-[var(--color-ink)]">
                   {wishlistSettings.maxAlertsPerDay} alerts
                 </span>
               </div>
@@ -257,9 +252,9 @@ export const WishlistPage: React.FC = () => {
                     maxAlertsPerDay: Number(e.target.value),
                   })
                 }
-                className="w-full accent-[#0E0E0E] cursor-pointer"
+                className="w-full accent-[var(--color-ink)] cursor-pointer"
               />
-              <div className="flex justify-between font-mono text-[10px] text-[#0E0E0E]/60 mt-1">
+              <div className="flex justify-between font-mono text-[10px] text-[var(--color-ink-muted)] mt-1">
                 <span>1 prompt</span>
                 <span>3 normal</span>
                 <span>5 max</span>
@@ -268,7 +263,7 @@ export const WishlistPage: React.FC = () => {
           </div>
 
           {/* Quiet mode toggle */}
-          <div className="pt-2 border-t border-[#0E0E0E]/15">
+          <div className="pt-2 border-t border-[var(--color-border)]">
             <Toggle
               id="quiet-mode-toggle"
               checked={wishlistSettings.quietModeMoving}
@@ -350,102 +345,101 @@ export const WishlistPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => {
-          const isPinned = pinnedWishlistIds.includes(item.id);
-          return (
-            <div
-              key={item.id}
-              className={`p-5 rounded-[6px] border-2 border-[#0E0E0E] bg-white transition-all flex flex-col justify-between ${
-                isPinned ? 'shadow-hard ring-2 ring-[#F6B800]' : 'shadow-hard-sm opacity-90'
-              }`}
-            >
-              <div>
-                {/* Top Badge: Category & Detour Budget Pill */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-[4px] border-2 border-[#0E0E0E] bg-[#F4F1EA] flex items-center justify-center shadow-hard-sm">
-                      {getCategoryIconComponent(item.category)}
+            const isPinned = pinnedWishlistIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`p-5 rounded-2xl border bg-[var(--color-surface)] transition-all flex flex-col justify-between ${
+                  isPinned
+                    ? 'border-[var(--color-marigold)] ring-2 ring-[var(--color-marigold)]/20 shadow-md'
+                    : 'border-[var(--color-border)] shadow-sm hover:border-[var(--color-border-strong)]'
+                }`}
+              >
+                <div>
+                  {/* Top Badge: Category & Detour Budget Pill */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-sunken)] flex items-center justify-center">
+                        {getCategoryIconComponent(item.category)}
+                      </div>
+                      <span className="font-mono text-[10px] font-semibold uppercase text-[var(--color-ink-muted)]">
+                        {item.category}
+                      </span>
                     </div>
-                    <span className="font-mono text-[10px] font-bold uppercase text-[#0E0E0E]/70">
-                      {item.category}
+
+                    <span className="px-2.5 py-0.5 bg-[var(--color-marigold-tint)] border border-[var(--color-marigold)]/30 rounded-full font-mono text-[11px] font-semibold text-[#8c5e03]">
+                      MAX +{item.detourBudgetMinutes}M DETOUR
                     </span>
                   </div>
 
-                  {/* Detour Budget Per Item Badge */}
-                  <span className="px-2 py-0.5 bg-[#FFF9E6] border border-[#0E0E0E] rounded-[2px] font-mono text-[11px] font-bold text-[#E58A00]">
-                    MAX +{item.detourBudgetMinutes}M DETOUR
-                  </span>
-                </div>
+                  <h3 className="font-display font-bold text-base text-[var(--color-ink)] leading-snug mb-1">
+                    {item.name}
+                  </h3>
 
-                {/* Errand Title (e.g. Buy shoes at Puma) */}
-                <h3 className="font-display font-extrabold text-base text-[#0E0E0E] leading-snug mb-1">
-                  {item.name}
-                </h3>
+                  <div className="font-body text-xs text-[var(--color-ink-secondary)] mb-2">
+                    {item.landmark} · <span className="font-semibold text-[var(--color-ink)]">{item.area}</span>
+                  </div>
 
-                <div className="font-body text-xs text-[#0E0E0E]/80 mb-2">
-                  {item.landmark} · <span className="font-semibold">{item.area}</span>
-                </div>
+                  {/* Off-Route Distance Metric */}
+                  <div className="p-2.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl font-mono text-xs flex items-center justify-between mb-3">
+                    <span className="text-[var(--color-ink-muted)]">Proximity:</span>
+                    <span className="font-semibold text-[var(--color-ink)]">
+                      ~{item.distanceOffRouteMeters}m off route (+{item.detourMinutes} min)
+                    </span>
+                  </div>
 
-                {/* Off-Route Distance Metric */}
-                <div className="p-2 bg-[#F4F1EA] border border-[#0E0E0E]/20 rounded-[3px] font-mono text-xs flex items-center justify-between mb-3">
-                  <span className="text-[#0E0E0E]/70">Proximity:</span>
-                  <span className="font-bold text-[#0E0E0E]">
-                    ~{item.distanceOffRouteMeters}m off route (+{item.detourMinutes} min)
-                  </span>
-                </div>
-
-                {item.note && (
-                  <p className="font-body text-xs text-[#0E0E0E]/70 italic mb-4">
-                    "{item.note}"
-                  </p>
-                )}
-              </div>
-
-              {/* Bottom Actions: Pin Toggle + Delete + Demo Simulator */}
-              <div className="pt-3 border-t-2 border-[#0E0E0E]/10 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => toggleWishlistPin(item.id)}
-                  className={`flex-1 min-h-[44px] px-3 py-1.5 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    isPinned
-                      ? 'bg-[#F6B800] text-[#0E0E0E] shadow-hard-sm'
-                      : 'bg-white hover:bg-[#F4F1EA] text-[#0E0E0E]'
-                  }`}
-                >
-                  {isPinned ? (
-                    <>
-                      <Check className="w-4 h-4 stroke-[3]" />
-                      <span>PINNED TO RUN</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      <span>PIN TO ROUTE</span>
-                    </>
+                  {item.note && (
+                    <p className="font-body text-xs text-[var(--color-ink-muted)] italic mb-4">
+                      "{item.note}"
+                    </p>
                   )}
-                </button>
+                </div>
 
-                {/* Test Simulator Button for this specific errand */}
-                <button
-                  type="button"
-                  onClick={() => triggerMockOnTheWayPrompt(item)}
-                  className="w-10 h-11 flex items-center justify-center border-2 border-[#0E0E0E] rounded-[4px] bg-white hover:bg-[#15171A] hover:text-[#F6B800] text-[#0E0E0E] transition-colors cursor-pointer"
-                  title="Simulate prompt banner for this errand"
-                >
-                  <Sparkles className="w-4 h-4" />
-                </button>
+                {/* Bottom Actions: Pin Toggle + Delete + Demo Simulator */}
+                <div className="pt-3 border-t border-[var(--color-border)] flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlistPin(item.id)}
+                    className={`flex-1 min-h-[42px] px-3 py-1.5 rounded-full border font-body text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      isPinned
+                        ? 'bg-[var(--color-marigold)] text-[#1F2A27] font-bold border-[var(--color-marigold-hover)] shadow-sm'
+                        : 'bg-[var(--color-surface)] hover:bg-[var(--color-bg-sunken)] border-[var(--color-border)] text-[var(--color-ink)]'
+                    }`}
+                  >
+                    {isPinned ? (
+                      <>
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                        <span>Pinned to Run</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        <span>Pin to Route</span>
+                      </>
+                    )}
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => removeWishlistItem(item.id)}
-                  className="w-10 h-11 flex items-center justify-center border-2 border-[#0E0E0E] rounded-[4px] bg-white hover:bg-[#D7372B] hover:text-white text-[#0E0E0E] transition-colors cursor-pointer"
-                  title="Delete errand"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => triggerMockOnTheWayPrompt(item)}
+                    className="w-10 h-10 flex items-center justify-center border border-[var(--color-border)] rounded-full bg-[var(--color-surface)] hover:bg-[#1F2A27] hover:text-[#F2B84B] dark:hover:bg-[#2C2415] dark:hover:text-[#F2B84B] text-[var(--color-ink)] transition-colors cursor-pointer"
+                    title="Simulate prompt banner for this errand"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => removeWishlistItem(item.id)}
+                    className="w-10 h-10 flex items-center justify-center border border-[var(--color-border)] rounded-full bg-[var(--color-surface)] hover:bg-[var(--color-priority-high-bg)] hover:text-[var(--color-priority-high)] text-[var(--color-ink-secondary)] transition-colors cursor-pointer"
+                    title="Delete errand"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       )}
 
@@ -458,9 +452,8 @@ export const WishlistPage: React.FC = () => {
         size="md"
       >
         <form onSubmit={handleCreateErrand} className="space-y-4">
-          {/* Errand Title */}
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1">
+            <label className="block font-body font-semibold text-xs text-[var(--color-ink-secondary)] mb-1">
               What do you need to do? *
             </label>
             <input
@@ -469,13 +462,12 @@ export const WishlistPage: React.FC = () => {
               value={errandTitle}
               onChange={(e) => setErrandTitle(e.target.value)}
               placeholder="e.g. Buy running shoes at Puma / Pick up BP tablets"
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#F6B800]"
+              className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] transition-all"
             />
           </div>
 
-          {/* Category Picker */}
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1">
+            <label className="block font-body font-semibold text-xs text-[var(--color-ink-secondary)] mb-1">
               Category *
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -494,10 +486,10 @@ export const WishlistPage: React.FC = () => {
                     key={c.id}
                     type="button"
                     onClick={() => setCategory(c.id)}
-                    className={`h-11 px-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    className={`h-11 px-2 rounded-xl border font-body text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#F6B800] text-[#0E0E0E] shadow-hard-sm'
-                        : 'bg-[#F4F1EA] text-[#0E0E0E] hover:bg-white'
+                        ? 'bg-[var(--color-marigold)] text-[#1F2A27] font-bold border-[#E0A11B] shadow-sm'
+                        : 'bg-[var(--color-bg-sunken)] text-[var(--color-ink)] border-[var(--color-border)] hover:bg-[var(--color-surface)]'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -508,10 +500,9 @@ export const WishlistPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Landmark & Area */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-display font-bold text-xs uppercase mb-1">
+              <label className="block font-body font-semibold text-xs text-[var(--color-ink-secondary)] mb-1">
                 Specific Landmark / Store
               </label>
               <input
@@ -519,12 +510,12 @@ export const WishlistPage: React.FC = () => {
                 value={landmark}
                 onChange={(e) => setLandmark(e.target.value)}
                 placeholder="e.g. Phoenix Palladium / Gokhale Rd"
-                className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+                className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] transition-all"
               />
             </div>
 
             <div>
-              <label className="block font-display font-bold text-xs uppercase mb-1">
+              <label className="block font-body font-semibold text-xs text-[var(--color-ink-secondary)] mb-1">
                 Area Corridor
               </label>
               <input
@@ -532,18 +523,17 @@ export const WishlistPage: React.FC = () => {
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
                 placeholder="e.g. Lower Parel / Dadar"
-                className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+                className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] transition-all"
               />
             </div>
           </div>
 
-          {/* Detour Budget Per Item Slider */}
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px]">
+          <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-display font-bold text-xs uppercase text-[#0E0E0E]">
+              <span className="font-body font-semibold text-xs text-[var(--color-ink)]">
                 Detour Budget for this item
               </span>
-              <span className="font-mono font-extrabold text-sm text-[#E58A00]">
+              <span className="font-mono font-bold text-sm text-[#8c5e03]">
                 Max +{detourBudgetMinutes} min detour
               </span>
             </div>
@@ -554,16 +544,15 @@ export const WishlistPage: React.FC = () => {
               step={1}
               value={detourBudgetMinutes}
               onChange={(e) => setDetourBudgetMinutes(Number(e.target.value))}
-              className="w-full accent-[#0E0E0E] cursor-pointer"
+              className="w-full accent-[var(--color-marigold)] cursor-pointer"
             />
-            <span className="font-mono text-[10px] text-[#0E0E0E]/60 mt-1 block">
+            <span className="font-body text-[11px] text-[var(--color-ink-muted)] mt-1 block">
               RouteWala will only alert you if the store is reachable under this time budget.
             </span>
           </div>
 
-          {/* Notes */}
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1">
+            <label className="block font-body font-semibold text-xs text-[var(--color-ink-secondary)] mb-1">
               Personal Note / Checklist (Optional)
             </label>
             <input
@@ -571,7 +560,7 @@ export const WishlistPage: React.FC = () => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Size UK 9, keep order receipt ready"
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+              className="w-full h-11 px-3.5 border border-[var(--color-border)] rounded-xl font-body text-sm bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] transition-all"
             />
           </div>
 

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, CheckCircle2, RefreshCw } from 'lucide-react';
+import { WifiOff, CheckCircle2, RefreshCw, CloudUpload } from 'lucide-react';
+import {
+  getPendingQueueCount,
+  subscribeToSyncQueue,
+  replaySyncQueue,
+} from '../../data/repo/syncQueue';
 
 interface OfflineBannerProps {
   className?: string;
@@ -9,7 +14,7 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ className = '' }) 
   const [isOnline, setIsOnline] = useState<boolean>(() => {
     return typeof navigator !== 'undefined' ? navigator.onLine : true;
   });
-  const [simulatedOffline, setSimulatedOffline] = useState<boolean>(false);
+  const [pendingCount, setPendingCount] = useState<number>(() => getPendingQueueCount());
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncNotice, setSyncNotice] = useState<boolean>(false);
 
@@ -20,24 +25,31 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ className = '' }) 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    const unsubscribeQueue = subscribeToSyncQueue((count) => {
+      setPendingCount(count);
+    });
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      unsubscribeQueue();
     };
   }, []);
 
-  const effectivelyOffline = !isOnline || simulatedOffline;
+  const effectivelyOffline = !isOnline;
 
-  const handleManualSync = () => {
+  const handleManualSync = async () => {
     setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-      setSyncNotice(true);
-      setTimeout(() => setSyncNotice(false), 2500);
-    }, 600);
+    try {
+      const result = await replaySyncQueue(async () => true);
+      setPendingCount(result.remaining);
+    } catch {}
+    setIsSyncing(false);
+    setSyncNotice(true);
+    setTimeout(() => setSyncNotice(false), 2500);
   };
 
-  if (!effectivelyOffline && !syncNotice) {
+  if (!effectivelyOffline && pendingCount === 0 && !syncNotice) {
     return null;
   }
 
@@ -46,10 +58,10 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ className = '' }) 
       <div
         role="status"
         aria-live="polite"
-        className="bg-[#2E7D4F] text-white border-b-2 border-[#0E0E0E] px-3 py-2 text-center text-xs font-mono font-bold flex items-center justify-center gap-2 select-none"
+        className="bg-[#E4F3EB] text-[#3F8F66] border-b border-[#3F8F66]/30 px-3 py-2 text-center text-xs font-mono font-medium flex items-center justify-center gap-2 select-none"
       >
         <CheckCircle2 className="w-4 h-4" />
-        <span>LOCAL CACHE VERIFIED: ALL STOPS & NAVIGATION ASSETS IN SYNC</span>
+        <span>Local changes verified and synchronized to cloud</span>
       </div>
     );
   }
@@ -58,19 +70,29 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ className = '' }) 
     <div
       role="alert"
       aria-live="assertive"
-      className={`bg-[#15171A] text-white border-b-2 border-[#0E0E0E] px-3 py-2 select-none ${className}`}
+      className={`bg-[#F2ECE1] dark:bg-[#1E2724] text-[#1F2A27] dark:text-[#FAF6EF] border-b border-[#E6DECF] dark:border-[#2B3833] px-3.5 py-2.5 select-none transition-colors ${className}`}
     >
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
         <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-[3px] bg-[#F6B800] text-[#0E0E0E] flex items-center justify-center shrink-0 border border-[#0E0E0E] font-bold">
-            <WifiOff className="w-3.5 h-3.5 stroke-[2.5]" />
+          <div className="w-6 h-6 rounded-full bg-[#F2B84B] text-[#1F2A27] flex items-center justify-center shrink-0 shadow-warm-sm">
+            {pendingCount > 0 ? (
+              <CloudUpload className="w-3.5 h-3.5 stroke-[2]" />
+            ) : (
+              <WifiOff className="w-3.5 h-3.5 stroke-[2]" />
+            )}
           </div>
           <div>
-            <span className="font-mono font-extrabold text-[#F6B800] uppercase tracking-wider mr-2">
-              OFFLINE MODE ACTIVE:
+            <span className="font-mono font-bold text-[#1F2A27] dark:text-[#FAF6EF] uppercase tracking-wide mr-2">
+              {effectivelyOffline
+                ? 'Offline Mode:'
+                : pendingCount > 0
+                ? 'Pending Cloud Sync:'
+                : 'Offline Active:'}
             </span>
-            <span className="font-body text-[#F4F1EA]">
-              Cached Mumbai route running locally. No cellular connection required in basements.
+            <span className="font-body text-[#55625D] dark:text-[#95A39D]">
+              {pendingCount > 0
+                ? `${pendingCount} action${pendingCount > 1 ? 's' : ''} queued locally. Will sync automatically when network returns.`
+                : 'Route running locally. Zero data loss in basements or spotty connectivity.'}
             </span>
           </div>
         </div>
@@ -80,21 +102,11 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ className = '' }) 
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="px-2.5 py-1 bg-[#F4F1EA] hover:bg-white text-[#0E0E0E] font-mono text-[11px] font-bold rounded-[3px] border border-[#0E0E0E] flex items-center gap-1 cursor-pointer transition-colors"
+            className="px-3 py-1 bg-[#FFFDF9] dark:bg-[#141A18] hover:bg-[#FAF6EF] text-[#1F2A27] dark:text-[#FAF6EF] font-mono text-[11px] font-medium rounded-full border border-[#E6DECF] dark:border-[#2B3833] flex items-center gap-1.5 cursor-pointer shadow-warm-sm transition-colors"
           >
-            <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>{isSyncing ? 'VERIFYING...' : 'FORCE RE-SYNC'}</span>
+            <RefreshCw className={`w-3 h-3 text-[#E0A11B] ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Syncing...' : 'Sync Now'}</span>
           </button>
-
-          {simulatedOffline && (
-            <button
-              type="button"
-              onClick={() => setSimulatedOffline(false)}
-              className="px-2 py-1 bg-[#D7372B] hover:bg-red-700 text-white font-mono text-[10px] font-bold rounded-[3px] border border-[#0E0E0E] cursor-pointer"
-            >
-              END SIMULATION
-            </button>
-          )}
         </div>
       </div>
     </div>

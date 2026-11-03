@@ -1,31 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useRoute } from '../context/RouteContext';
 import { Button } from '../components/common/Button';
 import { DayReplayMap } from '../components/summary/DayReplayMap';
 import { EarningsCalculator } from '../components/summary/EarningsCalculator';
 import { EmptyState } from '../components/common/EmptyState';
+import { Skeleton } from '../components/common/Skeleton';
+import * as repo from '../data/repo';
 import {
   CheckCircle2,
   XCircle,
   Share2,
   RotateCcw,
   Clock,
-  Navigation,
-  IndianRupee,
-  FileText,
   Printer,
   Calendar,
   AlertTriangle,
   Download,
-  Building,
+  History,
 } from 'lucide-react';
 
 export const SummaryPage: React.FC = () => {
   const {
     stops,
     completedStopIds,
-    skippedStopIds,
     stats,
     riderPayPerStop,
     setRiderPayPerStop,
@@ -34,11 +33,19 @@ export const SummaryPage: React.FC = () => {
     fuelAllowancePerKm,
     setFuelAllowancePerKm,
     resetToMockData,
-    t,
   } = useRoute();
 
   const navigate = useNavigate();
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+
+  // Fetch past route plans using TanStack Query
+  const {
+    data: pastPlans = [],
+    isLoading: plansLoading,
+  } = useQuery({
+    queryKey: ['route_plans'],
+    queryFn: () => repo.listPlans(),
+  });
 
   if (stops.length === 0) {
     return (
@@ -61,7 +68,6 @@ export const SummaryPage: React.FC = () => {
 
   const completionRate = Math.round((completedStopIds.length / Math.max(stops.length, 1)) * 100);
 
-  // Simulated timestamps for chronological timeline
   const getStopTimestamp = (idx: number) => {
     const baseHour = 9;
     const minutes = idx * 28 + 15;
@@ -72,9 +78,8 @@ export const SummaryPage: React.FC = () => {
     return `${displayHour}:${String(minute).padStart(2, '0')} ${period}`;
   };
 
-  // WhatsApp formatted share text
   const handleCopyWhatsApp = () => {
-    const text = `*ROUTWALA MUMBAI SHIFT REPORT* 📦
+    const text = `*ROUTEWALA MUMBAI SHIFT REPORT* 📦
 📅 Date: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
 👤 Courier Run: Dadar - Byculla - Colaba Corridor
 
@@ -97,12 +102,11 @@ _Generated via RouteWala Transit Engine_`;
     setTimeout(() => setCopyFeedback(null), 3000);
   };
 
-  // Courier printable text receipt
   const handleCopyReceipt = () => {
     const divider = '========================================';
     const lines = [
       divider,
-      '     ROUTWALA MUMBAI TRANSIT RECEIPT    ',
+      '     ROUTEWALA MUMBAI TRANSIT RECEIPT    ',
       divider,
       `DATE: ${new Date().toLocaleDateString('en-IN')} | DEPOT: MUMBAI CENTRAL`,
       `TOTAL DROPS: ${stats.totalStops} | COMPLETED: ${stats.completedCount} | FAILED: ${stats.failedCount}`,
@@ -127,7 +131,6 @@ _Generated via RouteWala Transit Engine_`;
     setTimeout(() => setCopyFeedback(null), 3000);
   };
 
-  // Export JSON Backup
   const handleExportJSON = () => {
     const data = {
       exportDate: new Date().toISOString(),
@@ -146,79 +149,79 @@ _Generated via RouteWala Transit Engine_`;
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 space-y-6 page-fade-in">
       {/* 1. TOP RECEIPT CARD */}
-      <div className="ticket-stub p-5 sm:p-7 bg-white shadow-hard border-2 border-[#0E0E0E]">
+      <div className="soft-card p-6 sm:p-8 bg-[var(--color-surface)] shadow-sm border border-[var(--color-border)] rounded-2xl">
         {/* Receipt Header */}
-        <div className="text-center border-b-2 border-dashed border-[#0E0E0E] pb-5 mb-5">
-          <div className="w-12 h-12 mx-auto mb-2.5 bg-[#F6B800] border-2 border-[#0E0E0E] rounded-[4px] flex items-center justify-center font-mono font-black text-xl shadow-hard-sm">
+        <div className="text-center border-b border-[var(--color-border)] pb-6 mb-6">
+          <div className="w-12 h-12 mx-auto mb-3 bg-[var(--color-marigold)] text-[#1F2A27] rounded-2xl flex items-center justify-center font-display font-bold text-xl shadow-sm">
             RW
           </div>
-          <div className="font-mono text-xs font-bold text-[#0E0E0E]/60 uppercase tracking-widest">
-            MUMBAI COURIER TRANSIT RECEIPT & CLOSEOUT
+          <div className="font-mono text-xs font-semibold text-[var(--color-ink-muted)] uppercase tracking-wider">
+            Mumbai Courier Transit Receipt & Closeout
           </div>
-          <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-[#0E0E0E] mt-1">
+          <h1 className="font-display font-bold text-2xl sm:text-3xl text-[var(--color-ink)] mt-1">
             End of Shift Summary
           </h1>
-          <div className="font-mono text-xs text-[#0E0E0E]/70 mt-1 flex items-center justify-center gap-2 flex-wrap">
+          <div className="font-body text-xs text-[var(--color-ink-secondary)] mt-1.5 flex items-center justify-center gap-2 flex-wrap">
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
               {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
             <span>·</span>
-            <span>CORRIDOR: SOUTH-CENTRAL MUMBAI</span>
+            <span>Corridor: South-Central Mumbai</span>
             <span>·</span>
-            <span className="font-bold text-[#2E7D4F]">{completionRate}% SUCCESS RATE</span>
+            <span className="font-semibold text-[var(--color-sage-deep)]">{completionRate}% Success Rate</span>
           </div>
         </div>
 
         {/* 4 Hero KPI Number Tiles */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {/* 1. Drops Completed vs Failed */}
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] text-center">
-            <div className="font-mono text-[10px] font-bold text-[#0E0E0E]/60 uppercase">
-              DELIVERIES
+          <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl text-center">
+            <div className="font-mono text-[10px] font-semibold text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Deliveries
             </div>
-            <div className="font-mono font-black text-2xl text-[#0E0E0E] mt-0.5">
+            <div className="font-mono font-bold text-2xl text-[var(--color-ink)] mt-0.5 tabular-nums">
               {stats.completedCount} / {stats.totalStops}
             </div>
-            <div className="font-mono text-[10px] text-[#2E7D4F] font-bold">
+            <div className="font-mono text-[10px] text-[var(--color-sage-deep)] font-semibold mt-0.5">
               {stats.failedCount > 0 ? `${stats.failedCount} RETURNED` : '0 RETURNS'}
             </div>
           </div>
 
           {/* 2. Total COD Handover */}
-          <div className="p-3 bg-[#FFF9E6] border-2 border-[#0E0E0E] rounded-[4px] text-center">
-            <div className="font-mono text-[10px] font-bold text-[#E58A00] uppercase">
-              COD TO HAND OVER
+          <div className="p-3.5 bg-[var(--color-marigold-tint)]/60 border border-[var(--color-marigold)]/30 rounded-xl text-center">
+            <div className="font-mono text-[10px] font-semibold text-[#8c5e03] uppercase tracking-wide">
+              COD To Remit
             </div>
-            <div className="font-mono font-black text-2xl text-[#0E0E0E] mt-0.5 flex items-center justify-center">
+            <div className="font-mono font-bold text-2xl text-[var(--color-ink)] mt-0.5 flex items-center justify-center tabular-nums">
               <span>₹</span>
               <span>{stats.collectedCodAmount.toLocaleString('en-IN')}</span>
             </div>
-            <div className="font-mono text-[10px] text-[#0E0E0E]/70 font-bold">
-              DEPOSIT AT DEPOT
+            <div className="font-body text-[10px] text-[var(--color-ink-secondary)] font-medium mt-0.5">
+              Deposit at depot
             </div>
           </div>
 
           {/* 3. Distance Covered */}
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] text-center">
-            <div className="font-mono text-[10px] font-bold text-[#0E0E0E]/60 uppercase">
-              DISTANCE
+          <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl text-center">
+            <div className="font-mono text-[10px] font-semibold text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Distance
             </div>
-            <div className="font-mono font-black text-2xl text-[#0E0E0E] mt-0.5">
-              {stats.totalKm} KM
+            <div className="font-mono font-bold text-2xl text-[var(--color-ink)] mt-0.5 tabular-nums">
+              {stats.totalKm} km
             </div>
-            <div className="font-mono text-[10px] text-[#0E0E0E]/60">ODOMETER TOTAL</div>
+            <div className="font-body text-[10px] text-[var(--color-ink-muted)] mt-0.5">Odometer total</div>
           </div>
 
           {/* 4. Time Saved */}
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] text-center">
-            <div className="font-mono text-[10px] font-bold text-[#0E0E0E]/60 uppercase">
-              TIME SAVED
+          <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl text-center">
+            <div className="font-mono text-[10px] font-semibold text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Time Saved
             </div>
-            <div className="font-mono font-black text-2xl text-[#2E7D4F] mt-0.5">
+            <div className="font-mono font-bold text-2xl text-[var(--color-sage-deep)] mt-0.5 tabular-nums">
               ~{stats.timeSavedMinutes}m
             </div>
-            <div className="font-mono text-[10px] text-[#0E0E0E]/60">VS STANDARD MAPS</div>
+            <div className="font-body text-[10px] text-[var(--color-ink-muted)] mt-0.5">vs Standard Maps</div>
           </div>
         </div>
 
@@ -242,18 +245,18 @@ _Generated via RouteWala Transit Engine_`;
         </div>
 
         {/* 4. CHRONOLOGICAL PER-STOP TIMELINE */}
-        <div className="border-t-2 border-b-2 border-dashed border-[#0E0E0E]/30 py-5 mb-6">
+        <div className="border-t border-b border-[var(--color-border)] py-5 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="font-mono text-xs font-black text-[#0E0E0E] uppercase tracking-wider flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#F6B800]" />
-              <span>CHRONOLOGICAL DELIVERY TIMELINE</span>
+            <div className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wider flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[var(--color-marigold)]" />
+              <span>Chronological Delivery Timeline</span>
             </div>
-            <span className="font-mono text-[11px] text-[#0E0E0E]/70">
-              {stops.length} STOPS RECORDED
+            <span className="font-mono text-[11px] text-[var(--color-ink-muted)]">
+              {stops.length} stops recorded
             </span>
           </div>
 
-          <div className="space-y-3 font-mono text-xs">
+          <div className="space-y-3 font-body text-xs">
             {stops.map((stop, idx) => {
               const isDone = completedStopIds.includes(stop.id);
               const isFailed = stop.status === 'skipped' || (stop.notes && stop.notes.includes('[Failed:'));
@@ -262,30 +265,28 @@ _Generated via RouteWala Transit Engine_`;
               return (
                 <div
                   key={stop.id}
-                  className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] shadow-hard-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                  className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
                 >
-                  <div className="flex items-start sm:items-center gap-2.5">
-                    {/* Number badge */}
-                    <div className="w-7 h-7 rounded-[3px] bg-[#15171A] text-[#F6B800] border border-[#0E0E0E] flex items-center justify-center font-bold text-xs shrink-0">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-[#1F2A27] text-[#F2B84B] dark:bg-[#FAF6EF] dark:text-[#1F2A27] flex items-center justify-center font-mono font-bold text-xs shrink-0">
                       {String(idx + 1).padStart(2, '0')}
                     </div>
 
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-sm text-[#0E0E0E] font-display">
+                        <span className="font-bold text-sm text-[var(--color-ink)]">
                           {stop.recipientName}
                         </span>
-                        <span className="text-[11px] text-[#0E0E0E]/70 font-mono">
+                        <span className="text-[11px] text-[var(--color-ink-muted)] font-mono">
                           ({stop.area})
                         </span>
                       </div>
-                      <div className="text-[11px] text-[#0E0E0E]/80 truncate max-w-sm mt-0.5">
+                      <div className="text-[11px] text-[var(--color-ink-secondary)] truncate max-w-sm mt-0.5">
                         {stop.address}
                       </div>
 
-                      {/* Failure note callout if failed */}
                       {isFailed && stop.notes && (
-                        <div className="mt-1 text-[11px] font-bold text-[#D7372B] flex items-center gap-1">
+                        <div className="mt-1 text-[11px] font-semibold text-[var(--color-priority-high)] flex items-center gap-1">
                           <AlertTriangle className="w-3.5 h-3.5" />
                           <span>{stop.notes}</span>
                         </div>
@@ -295,37 +296,37 @@ _Generated via RouteWala Transit Engine_`;
 
                   {/* Right side: Timestamp + COD + Status badge */}
                   <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
-                    <span className="text-[#0E0E0E]/70 font-bold text-[11px]">
+                    <span className="text-[var(--color-ink-secondary)] font-mono font-medium text-[11px]">
                       {timestamp}
                     </span>
 
                     {stop.codAmount && stop.codAmount > 0 ? (
-                      <span className="px-2 py-0.5 rounded-[2px] bg-[#FFF9E6] border border-[#0E0E0E] text-[#0E0E0E] font-bold text-[10px]">
+                      <span className="px-2 py-0.5 rounded-full bg-[var(--color-marigold-tint)] text-[#8c5e03] font-mono font-semibold text-[10px]">
                         ₹{stop.codAmount} COD
                       </span>
                     ) : null}
 
                     <span
-                      className={`px-2 py-1 rounded-[2px] border border-[#0E0E0E] font-bold text-[10px] uppercase flex items-center gap-1 ${
+                      className={`px-2.5 py-1 rounded-full font-body font-semibold text-[10px] uppercase flex items-center gap-1 ${
                         isDone
-                          ? 'bg-[#2E7D4F] text-white'
+                          ? 'bg-[var(--color-sage-tint)] text-[var(--color-sage-deep)]'
                           : isFailed
-                          ? 'bg-[#D7372B] text-white'
-                          : 'bg-[#E58A00] text-[#0E0E0E]'
+                          ? 'bg-[var(--color-priority-high-bg)] text-[var(--color-priority-high)]'
+                          : 'bg-[var(--color-marigold-tint)] text-[#8c5e03]'
                       }`}
                     >
                       {isDone ? (
                         <>
-                          <CheckCircle2 className="w-3 h-3 stroke-[3]" />
-                          <span>DELIVERED</span>
+                          <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
+                          <span>Delivered</span>
                         </>
                       ) : isFailed ? (
                         <>
-                          <XCircle className="w-3 h-3 stroke-[3]" />
-                          <span>RETURNED</span>
+                          <XCircle className="w-3 h-3 stroke-[2.5]" />
+                          <span>Returned</span>
                         </>
                       ) : (
-                        <span>PENDING</span>
+                        <span>Pending</span>
                       )}
                     </span>
                   </div>
@@ -335,10 +336,68 @@ _Generated via RouteWala Transit Engine_`;
           </div>
         </div>
 
-        {/* 5. MULTI-ACTION EXPORT & SHIFT CLOSEOUT BAR */}
+        {/* 5. PAST DELIVERY RUNS LIST (route_plans) */}
+        <div className="border-b border-[var(--color-border)] pb-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wider flex items-center gap-2">
+              <History className="w-4 h-4 text-[var(--color-marigold)]" />
+              <span>Past Delivery Run Archive</span>
+            </div>
+            <span className="font-mono text-[11px] text-[var(--color-ink-muted)]">
+              {pastPlans.length} saved runs
+            </span>
+          </div>
+
+          {plansLoading ? (
+            <div className="space-y-2.5">
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
+            </div>
+          ) : pastPlans.length === 0 ? (
+            <div className="p-4 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl text-center font-body text-xs text-[var(--color-ink-muted)]">
+              No previous delivery runs recorded yet.
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {pastPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl shadow-sm flex items-center justify-between gap-3 text-xs font-body"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-ink)]">
+                      <Calendar className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="font-body font-bold text-sm text-[var(--color-ink)]">
+                        {plan.title || 'Mumbai Corridor Run'}
+                      </div>
+                      <div className="text-[11px] text-[var(--color-ink-secondary)]">
+                        Date: {plan.plan_date} · Status: <span className="uppercase font-semibold">{plan.status}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-mono font-semibold text-[var(--color-ink)]">
+                        {plan.total_km ? `${plan.total_km} KM` : '18.5 KM'}
+                      </div>
+                      <div className="text-[10px] text-[var(--color-sage-deep)] font-semibold font-mono">
+                        ₹{plan.earnings || 580} EST.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 6. MULTI-ACTION EXPORT & SHIFT CLOSEOUT BAR */}
         <div className="space-y-3">
           {copyFeedback && (
-            <div className="p-2.5 bg-[#2E7D4F] text-white border-2 border-[#0E0E0E] rounded-[4px] font-mono text-xs font-bold text-center">
+            <div className="p-3 bg-[var(--color-sage-tint)] text-[var(--color-sage-deep)] border border-[var(--color-sage)] rounded-xl font-body text-xs font-semibold text-center">
               ✓ {copyFeedback}
             </div>
           )}

@@ -7,8 +7,8 @@ interface IllustrationProps {
 
 /**
  * Empty Delivery Manifest Clipboard Illustration
- * Handcrafted in Mumbai Transit Signage aesthetic:
- * Asphalt #15171A, Taxi Yellow #F6B800, Paper #F4F1EA, Ink #0E0E0E, Signal Red #D7372B.
+ * Redesigned in Soft Mumbai Morning Palette:
+ * Cream #FAF6EF, Marigold #F2B84B, Sage #A9C4B0, Ink #1F2A27.
  */
 export const EmptyClipboardIllustration: React.FC<IllustrationProps> = ({
   className = '',
@@ -23,105 +23,55 @@ export const EmptyClipboardIllustration: React.FC<IllustrationProps> = ({
     className={`select-none ${className}`}
     aria-hidden="true"
   >
-    {/* Hard Offset Shadow */}
-    <rect x="36" y="24" width="96" height="120" rx="4" fill="#0E0E0E" />
+    {/* Soft Shadow */}
+    <rect x="36" y="24" width="94" height="118" rx="14" fill="#F2ECE1" />
 
-    {/* Clipboard Base (Paper tinted) */}
+    {/* Clipboard Base */}
     <rect
-      x="32"
-      y="20"
-      width="96"
-      height="120"
-      rx="4"
-      fill="#F4F1EA"
-      stroke="#0E0E0E"
-      strokeWidth="2.5"
+      x="33"
+      y="21"
+      width="94"
+      height="118"
+      rx="14"
+      fill="#FFFDF9"
+      stroke="#E6DECF"
+      strokeWidth="1.5"
     />
 
-    {/* Top Clip (Taxi Yellow with metal bolts) */}
+    {/* Top Clip */}
     <rect
       x="60"
-      y="12"
+      y="13"
       width="40"
       height="16"
-      rx="2"
-      fill="#F6B800"
-      stroke="#0E0E0E"
-      strokeWidth="2"
+      rx="6"
+      fill="#F2B84B"
     />
-    <circle cx="68" cy="20" r="2" fill="#0E0E0E" />
-    <circle cx="92" cy="20" r="2" fill="#0E0E0E" />
-
-    {/* Ticket Stub Cut-out Notches on Sides */}
-    <circle cx="32" cy="70" r="6" fill="#FFFFFF" stroke="#0E0E0E" strokeWidth="2" />
-    <circle cx="128" cy="70" r="6" fill="#FFFFFF" stroke="#0E0E0E" strokeWidth="2" />
+    <circle cx="80" cy="21" r="3" fill="#1F2A27" />
 
     {/* Dashed Route Line on Sheet */}
     <path
-      d="M48 48 L112 48"
-      stroke="#0E0E0E"
+      d="M 50 60 C 65 50, 80 75, 95 60 C 105 50, 110 80, 115 75"
+      stroke="#F2B84B"
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeDasharray="4 4"
     />
-    <path
-      d="M48 64 L96 64"
-      stroke="#0E0E0E"
-      strokeWidth="2"
-      strokeOpacity="0.4"
-      strokeLinecap="round"
-    />
-    <path
-      d="M48 78 L104 78"
-      stroke="#0E0E0E"
-      strokeWidth="2"
-      strokeOpacity="0.4"
-      strokeLinecap="round"
-    />
-    <path
-      d="M48 92 L88 92"
-      stroke="#0E0E0E"
-      strokeWidth="2"
-      strokeOpacity="0.4"
-      strokeLinecap="round"
-    />
 
-    {/* Transit Stamp / Checkpoint Square Token */}
-    <rect
-      x="84"
-      y="102"
-      width="28"
-      height="24"
-      rx="2"
-      fill="#F6B800"
-      stroke="#0E0E0E"
-      strokeWidth="2"
-    />
-    <text
-      x="98"
-      y="118"
-      textAnchor="middle"
-      fontFamily="monospace"
-      fontWeight="900"
-      fontSize="11"
-      fill="#0E0E0E"
-    >
-      00
-    </text>
+    {/* Soft waypoint dots */}
+    <circle cx="50" cy="60" r="4.5" fill="#3F8F66" stroke="#FFFDF9" strokeWidth="1.5" />
+    <circle cx="95" cy="60" r="4.5" fill="#F2B84B" stroke="#FFFDF9" strokeWidth="1.5" />
+    <circle cx="115" cy="75" r="5" fill="#D9604C" stroke="#FFFDF9" strokeWidth="1.5" />
 
-    {/* Dashed Connector Ribbon */}
-    <path
-      d="M48 114 L76 114"
-      stroke="#E58A00"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeDasharray="3 3"
-    />
+    {/* Soft note lines */}
+    <rect x="50" y="94" width="55" height="5" rx="2.5" fill="#E3EEE6" />
+    <rect x="50" y="105" width="45" height="5" rx="2.5" fill="#F2ECE1" />
+    <rect x="50" y="116" width="35" height="5" rx="2.5" fill="#F2ECE1" />
   </svg>
 );
 
 /**
- * Empty Wishlist / Errand Scooter Illustration
+ * Empty Delivery Scooter Illustration
  */
 export const EmptyScooterIllustration: React.FC<IllustrationProps> = ({
   className = '',
@@ -136,169 +86,42 @@ export const EmptyScooterIllustration: React.FC<IllustrationProps> = ({
     className={`select-none ${className}`}
     aria-hidden="true"
   >
-    {/* Ground Shadow */}
-    <ellipse cx="80" cy="136" rx="56" ry="6" fill="#0E0E0E" fillOpacity="0.15" />
-
-    {/* Rear Wheel */}
-    <circle cx="44" cy="116" r="18" fill="#15171A" stroke="#0E0E0E" strokeWidth="2.5" />
-    <circle cx="44" cy="116" r="8" fill="#F4F1EA" stroke="#0E0E0E" strokeWidth="2" />
-
-    {/* Front Wheel */}
-    <circle cx="118" cy="116" r="18" fill="#15171A" stroke="#0E0E0E" strokeWidth="2.5" />
-    <circle cx="118" cy="116" r="8" fill="#F4F1EA" stroke="#0E0E0E" strokeWidth="2" />
-
-    {/* Delivery Rear Crate (Taxi Yellow) */}
-    <rect x="26" y="60" width="36" height="34" rx="3" fill="#0E0E0E" />
-    <rect
-      x="24"
-      y="58"
-      width="36"
-      height="34"
-      rx="3"
-      fill="#F6B800"
-      stroke="#0E0E0E"
-      strokeWidth="2.5"
-    />
-    <path d="M28 75 L56 75" stroke="#0E0E0E" strokeWidth="2" strokeDasharray="3 2" />
-    <text
-      x="42"
-      y="88"
-      textAnchor="middle"
-      fontFamily="monospace"
-      fontWeight="900"
-      fontSize="9"
-      fill="#0E0E0E"
-    >
-      EMPTY
-    </text>
-
-    {/* Scooter Body Frame */}
+    {/* Soft Road Ground Line */}
     <path
-      d="M44 116 L68 116 L76 96 L104 96 L112 70 L118 64"
-      stroke="#0E0E0E"
-      strokeWidth="4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-
-    {/* Handlebar & Headlamp */}
-    <rect
-      x="112"
-      y="54"
-      width="14"
-      height="10"
-      rx="2"
-      fill="#F6B800"
-      stroke="#0E0E0E"
-      strokeWidth="2"
-    />
-    <circle cx="124" cy="59" r="3" fill="#FFFFFF" stroke="#0E0E0E" strokeWidth="1.5" />
-
-    {/* Heart Errand Bubble floating above crate */}
-    <g transform="translate(68, 28)">
-      <rect x="2" y="2" width="34" height="26" rx="3" fill="#0E0E0E" />
-      <rect
-        x="0"
-        y="0"
-        width="34"
-        height="26"
-        rx="3"
-        fill="#FFFFFF"
-        stroke="#0E0E0E"
-        strokeWidth="2"
-      />
-      <path
-        d="M17 19 L13 14 C10.5 11.5 12 8 15 8 C16.2 8 16.8 8.8 17 9.2 C17.2 8.8 17.8 8 19 8 C22 8 23.5 11.5 21 14 Z"
-        fill="#D7372B"
-        stroke="#0E0E0E"
-        strokeWidth="1.5"
-      />
-    </g>
-  </svg>
-);
-
-/**
- * Shift Complete Celebration Seal
- */
-export const ShiftCompleteIllustration: React.FC<IllustrationProps> = ({
-  className = '',
-  size = 140,
-}) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 160 160"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={`select-none ${className}`}
-    aria-hidden="true"
-  >
-    {/* Shadow */}
-    <circle cx="82" cy="82" r="54" fill="#0E0E0E" />
-
-    {/* Main Outer Seal */}
-    <circle
-      cx="80"
-      cy="80"
-      r="54"
-      fill="#2E7D4F"
-      stroke="#0E0E0E"
-      strokeWidth="3"
-    />
-
-    {/* Inner Dashed Ring */}
-    <circle
-      cx="80"
-      cy="80"
-      r="44"
-      stroke="#FFFFFF"
+      d="M 20 125 C 60 123, 100 127, 140 125"
+      stroke="#D3C8B4"
       strokeWidth="2"
       strokeDasharray="6 4"
     />
 
-    {/* Big Checkmark */}
+    {/* Rear Cargo Box */}
+    <rect x="32" y="65" width="34" height="28" rx="6" fill="#FBEBC6" stroke="#E0A11B" strokeWidth="1.5" />
+    <line x1="49" y1="65" x2="49" y2="93" stroke="#E0A11B" strokeWidth="1.5" />
+
+    {/* Scooter Body Frame */}
     <path
-      d="M58 80 L72 94 L104 62"
-      stroke="#F6B800"
-      strokeWidth="7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M58 80 L72 94 L104 62"
-      stroke="#0E0E0E"
-      strokeWidth="2"
+      d="M 45 92 L 65 92 L 80 80 L 105 80 L 115 50"
+      stroke="#1F2A27"
+      strokeWidth="3.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
 
-    {/* Top Text Pill */}
-    <rect
-      x="54"
-      y="38"
-      width="52"
-      height="16"
-      rx="2"
-      fill="#15171A"
-      stroke="#0E0E0E"
-      strokeWidth="1.5"
-    />
-    <text
-      x="80"
-      y="49"
-      textAnchor="middle"
-      fontFamily="monospace"
-      fontWeight="900"
-      fontSize="8"
-      fill="#F6B800"
-    >
-      MUMBAI 100%
-    </text>
+    {/* Wheels with Soft Hubs */}
+    <circle cx="50" cy="115" r="14" fill="#F2ECE1" stroke="#1F2A27" strokeWidth="3" />
+    <circle cx="50" cy="115" r="5" fill="#F2B84B" />
+
+    <circle cx="112" cy="115" r="14" fill="#F2ECE1" stroke="#1F2A27" strokeWidth="3" />
+    <circle cx="112" cy="115" r="5" fill="#F2B84B" />
+
+    {/* Handlebars & Headlamp */}
+    <path d="M 110 50 L 122 50" stroke="#1F2A27" strokeWidth="3.5" strokeLinecap="round" />
+    <circle cx="122" cy="53" r="4" fill="#F2B84B" />
   </svg>
 );
 
 /**
- * Offline Mode Signal Tower Illustration
+ * Offline Mode / Resilient Transit Illustration
  */
 export const OfflineModeIllustration: React.FC<IllustrationProps> = ({
   className = '',
@@ -313,62 +136,41 @@ export const OfflineModeIllustration: React.FC<IllustrationProps> = ({
     className={`select-none ${className}`}
     aria-hidden="true"
   >
-    {/* Shadow */}
-    <rect x="36" y="32" width="88" height="96" rx="4" fill="#0E0E0E" />
+    {/* Soft Aura */}
+    <circle cx="80" cy="80" r="55" fill="#E3EEE6" opacity="0.6" />
 
-    {/* Container box */}
+    {/* Phone Device Outline */}
     <rect
-      x="32"
-      y="28"
-      width="88"
+      x="52"
+      y="32"
+      width="56"
       height="96"
-      rx="4"
-      fill="#F4F1EA"
-      stroke="#0E0E0E"
-      strokeWidth="2.5"
-    />
-
-    {/* Radio Tower Mast */}
-    <path
-      d="M80 44 L64 104 M80 44 L96 104 M68 84 L92 84 M72 68 L88 68"
-      stroke="#0E0E0E"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-
-    {/* Top Beacon Ball */}
-    <circle cx="80" cy="44" r="5" fill="#E58A00" stroke="#0E0E0E" strokeWidth="2" />
-
-    {/* Disconnected Cross Slash */}
-    <circle cx="106" cy="46" r="14" fill="#D7372B" stroke="#0E0E0E" strokeWidth="2" />
-    <path
-      d="M98 38 L114 54 M114 38 L98 54"
-      stroke="#FFFFFF"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-
-    {/* Offline Storage Cache Badge */}
-    <rect
-      x="44"
-      y="108"
-      width="64"
-      height="18"
-      rx="2"
-      fill="#F6B800"
-      stroke="#0E0E0E"
+      rx="12"
+      fill="#FFFDF9"
+      stroke="#4F7A66"
       strokeWidth="2"
     />
-    <text
-      x="76"
-      y="121"
-      textAnchor="middle"
-      fontFamily="monospace"
-      fontWeight="900"
-      fontSize="9"
-      fill="#0E0E0E"
-    >
-      LOCAL CACHE
-    </text>
+
+    {/* Inner Screen Offline Route */}
+    <rect x="57" y="44" width="46" height="72" rx="6" fill="#F2ECE1" />
+    <path
+      d="M 64 65 Q 80 80 75 95"
+      stroke="#F2B84B"
+      strokeWidth="2.5"
+      strokeDasharray="4 3"
+      strokeLinecap="round"
+    />
+    <circle cx="64" cy="65" r="3.5" fill="#3F8F66" />
+    <circle cx="75" cy="95" r="3.5" fill="#D9604C" />
+
+    {/* Cloud / Wifi Check indicator */}
+    <circle cx="114" cy="110" r="16" fill="#3F8F66" stroke="#FFFDF9" strokeWidth="2.5" />
+    <path
+      d="M 108 110 L 112 114 L 120 106"
+      stroke="#FFFDF9"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );

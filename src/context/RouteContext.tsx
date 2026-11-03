@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { DeliveryStop, initialDeliveryStops, demoDayStops, PriorityLevel } from '../data/mockStops';
 import { WishlistItem, initialWishlistItems } from '../data/wishlistItems';
 import { Language, translations, Translations } from '../i18n/translations';
+import * as repo from '../data/repo';
 
 export interface WishlistSettings {
   detourBudgetPerErrand: number; // 0 to 10 min
@@ -22,6 +23,7 @@ export interface OnTheWayPrompt {
 
 interface RouteContextType {
   stops: DeliveryStop[];
+  activePlanId: string;
   activeStopIndex: number;
   completedStopIds: string[];
   skippedStopIds: string[];
@@ -66,6 +68,8 @@ interface RouteContextType {
   setTextSize: (size: 'normal' | 'large' | 'xlarge') => void;
   blockBackgroundTracking: boolean;
   setBlockBackgroundTracking: (blocked: boolean) => void;
+  locationOptIn: boolean;
+  setLocationOptIn: (optIn: boolean) => void;
   riderPayPerStop: number;
   setRiderPayPerStop: (val: number) => void;
   codBonusPercent: number;
@@ -139,6 +143,8 @@ const sanitizeWishlistItem = (w: any, idx: number): WishlistItem => ({
 });
 
 export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [activePlanId, setActivePlanId] = useState<string>('plan-today');
+
   const [stops, setStops] = useState<DeliveryStop[]>(() => {
     try {
       const saved = localStorage.getItem(`${STORAGE_KEY}_stops`);
@@ -247,14 +253,7 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [vehicle, setVehicle] = useState<'motorcycle' | 'scooter' | 'ev' | 'bicycle'>('motorcycle');
 
-  const [textSize, setTextSizeState] = useState<'normal' | 'large' | 'xlarge'>(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_text_size`);
-      return (saved as 'normal' | 'large' | 'xlarge') || 'normal';
-    } catch {
-      return 'normal';
-    }
-  });
+  const [textSize, setTextSizeState] = useState<'normal' | 'large' | 'xlarge'>('normal');
 
   const [blockBackgroundTracking, setBlockBackgroundTrackingState] = useState<boolean>(() => {
     try {
@@ -265,34 +264,77 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   });
 
-  const [riderPayPerStop, setRiderPayPerStop] = useState<number>(() => {
+  const [locationOptIn, setLocationOptInState] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_rate_per_stop`);
-      return saved ? Number(saved) : 45;
+      const saved = localStorage.getItem(`${STORAGE_KEY}_location_opt_in`);
+      return saved === 'true';
     } catch {
-      return 45;
+      return false;
     }
   });
 
-  const [codBonusPercent, setCodBonusPercent] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_cod_bonus`);
-      return saved ? Number(saved) : 2;
-    } catch {
-      return 2;
-    }
-  });
+  const [riderPayPerStop, setRiderPayPerStop] = useState<number>(45);
+  const [codBonusPercent, setCodBonusPercent] = useState<number>(2);
+  const [fuelAllowancePerKm, setFuelAllowancePerKm] = useState<number>(4);
 
-  const [fuelAllowancePerKm, setFuelAllowancePerKm] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_fuel_allowance`);
-      return saved ? Number(saved) : 4;
-    } catch {
-      return 4;
-    }
-  });
+  // Initial remote fetch / sync from repository
+  useEffect(() => {
+    let isMounted = true;
 
-  // Sync to local storage
+    async function initData() {
+      try {
+        const todayPlan = await repo.getTodayPlan();
+        if (isMounted && todayPlan?.id) {
+          setActivePlanId(todayPlan.id);
+        }
+
+        const [fetchedStops, fetchedWishlist, settings] = await Promise.all([
+          repo.listStops(todayPlan?.id),
+          repo.listWishlist(),
+          repo.getSettings(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (fetchedStops && fetchedStops.length > 0) {
+          setStops(fetchedStops.map((s, idx) => sanitizeStop(s, idx)));
+        }
+
+        if (fetchedWishlist && fetchedWishlist.length > 0) {
+          setWishlist(fetchedWishlist.map((w, idx) => sanitizeWishlistItem(w, idx)));
+        }
+
+        if (settings) {
+          if (settings.language) setLanguageState(settings.language as Language);
+          if (settings.high_contrast !== undefined) setHighContrast(settings.high_contrast);
+          if (settings.text_size) {
+            const mapped = settings.text_size === 'xl' ? 'xlarge' : settings.text_size === 'large' ? 'large' : 'normal';
+            setTextSizeState(mapped);
+          }
+          if (settings.location_opt_in !== undefined) setLocationOptInState(settings.location_opt_in);
+          if (settings.detour_budget_min) {
+            setWishlistSettings((prev) => ({
+              ...prev,
+              detourBudgetPerErrand: settings.detour_budget_min,
+              totalDailyDetourBudget: settings.daily_detour_budget_min,
+              maxAlertsPerDay: settings.max_alerts_per_day,
+              quietModeMoving: settings.quiet_mode,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('Initial repository load fallback to local state:', err);
+      }
+    }
+
+    initData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Sync to local storage for instant offline fallback
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_stops`, JSON.stringify(stops));
   }, [stops]);
@@ -328,6 +370,10 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [blockBackgroundTracking]);
 
   useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_location_opt_in`, String(locationOptIn));
+  }, [locationOptIn]);
+
+  useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_rate_per_stop`, String(riderPayPerStop));
     localStorage.setItem(`${STORAGE_KEY}_cod_bonus`, String(codBonusPercent));
     localStorage.setItem(`${STORAGE_KEY}_fuel_allowance`, String(fuelAllowancePerKm));
@@ -344,18 +390,29 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTextSize = (size: 'normal' | 'large' | 'xlarge') => {
     setTextSizeState(size);
+    repo.updateSettings({ text_size: size === 'xlarge' ? 'xl' : size });
   };
 
   const setBlockBackgroundTracking = (blocked: boolean) => {
     setBlockBackgroundTrackingState(blocked);
   };
 
+  const setLocationOptIn = (optIn: boolean) => {
+    setLocationOptInState(optIn);
+    repo.updateSettings({ location_opt_in: optIn });
+  };
+
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
+    repo.updateSettings({ language: lang });
   };
 
   const toggleHighContrast = () => {
-    setHighContrast((prev) => !prev);
+    setHighContrast((prev) => {
+      const next = !prev;
+      repo.updateSettings({ high_contrast: next });
+      return next;
+    });
   };
 
   const addStop = (stopData: Omit<DeliveryStop, 'id' | 'order' | 'status'>) => {
@@ -366,6 +423,7 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       status: 'pending',
     };
     setStops((prev) => [...prev, newStop]);
+    repo.addStop(stopData, activePlanId);
   };
 
   const addMultipleStops = (newStops: Array<Omit<DeliveryStop, 'id' | 'order' | 'status'>>) => {
@@ -379,6 +437,10 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }));
       return [...prev, ...formatted];
     });
+
+    newStops.forEach((s) => {
+      repo.addStop(s, activePlanId);
+    });
   };
 
   const removeStop = (id: string) => {
@@ -386,18 +448,21 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const filtered = prev.filter((s) => s.id !== id);
       return filtered.map((s, idx) => ({ ...s, order: idx + 1 }));
     });
+    repo.deleteStop(id);
   };
 
   const updateStop = (id: string, updates: Partial<DeliveryStop>) => {
     setStops((prev) =>
       prev.map((s) => (s.id === id ? { ...s, ...updates } : s))
     );
+    repo.updateStop(id, updates);
   };
 
   const updateStopPriority = (id: string, priority: PriorityLevel) => {
     setStops((prev) =>
       prev.map((s) => (s.id === id ? { ...s, priority } : s))
     );
+    repo.updateStop(id, { priority });
   };
 
   const reorderStops = (startIndex: number, endIndex: number) => {
@@ -405,7 +470,9 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const result = Array.from(prev);
       const [removed] = result.splice(startIndex, 1);
       result.splice(endIndex, 0, removed);
-      return result.map((s, idx) => ({ ...s, order: idx + 1 }));
+      const updated = result.map((s, idx) => ({ ...s, order: idx + 1 }));
+      repo.saveOptimisedOrder(activePlanId, updated.map((s) => s.id));
+      return updated;
     });
   };
 
@@ -414,6 +481,7 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCompletedStopIds([]);
     setSkippedStopIds([]);
     setActiveStopIndex(0);
+    demoDayStops.forEach((s) => repo.addStop(s, activePlanId));
   };
 
   const optimizeRoute = () => {
@@ -426,23 +494,19 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       };
 
       const sorted = [...prev].sort((a, b) => {
-        // High priority first
         if (priorityWeight[a.priority] !== priorityWeight[b.priority]) {
           return priorityWeight[a.priority] - priorityWeight[b.priority];
         }
-        // Pickups before drops if in same priority tier
         if (a.type !== b.type) {
           return a.type === 'pickup' ? -1 : 1;
         }
-        // Then by latitude corridor (North to South run in Mumbai)
         return b.coordinates.lat - a.coordinates.lat;
       });
 
-      // Recalculate incremental ETAs and distances
       let currentMinutes = 10;
       let currentKm = 1.8;
 
-      return sorted.map((stop, idx) => {
+      const optimized = sorted.map((stop, idx) => {
         currentMinutes += idx === 0 ? 0 : 14;
         currentKm += idx === 0 ? 0 : 2.6;
         return {
@@ -452,6 +516,10 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           distanceKm: Number(currentKm.toFixed(1)),
         };
       });
+
+      // Sync sequence via reorder_stops RPC
+      repo.saveOptimisedOrder(activePlanId, optimized.map((s) => s.id));
+      return optimized;
     });
   };
 
@@ -469,6 +537,9 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       prev.map((s) => (s.id === id ? { ...s, status: 'completed' } : s))
     );
     setActiveStopIndex((prev) => Math.min(prev + 1, stops.length - 1));
+
+    // Instant optimistic update + background sync / queue
+    repo.markStopStatus(id, 'delivered', new Date().toISOString());
   };
 
   const markStopSkipped = (id: string) => {
@@ -485,6 +556,8 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       prev.map((s) => (s.id === id ? { ...s, status: 'skipped' } : s))
     );
     setActiveStopIndex((prev) => Math.min(prev + 1, stops.length - 1));
+
+    repo.markStopStatus(id, 'skipped', null);
   };
 
   const markStopFailed = (id: string, reason: string) => {
@@ -510,6 +583,8 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       )
     );
     setActiveStopIndex((prev) => Math.min(prev + 1, stops.length - 1));
+
+    repo.markStopStatus(id, 'failed', null, reason);
   };
 
   const undoLastAction = () => {
@@ -523,6 +598,8 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSkippedStopIds((prev) => prev.filter((id) => id !== stopId));
     setActiveStopIndex(prevIndex);
     setLastAction(null);
+
+    repo.markStopStatus(stopId, 'pending', null);
   };
 
   const toggleWishlistPin = (id: string) => {
@@ -538,15 +615,26 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     setWishlist((prev) => [newItem, ...prev]);
     setPinnedWishlistIds((prev) => [...prev, newItem.id]);
+    repo.addWishlistItem(item);
   };
 
   const removeWishlistItem = (id: string) => {
     setWishlist((prev) => prev.filter((item) => item.id !== id));
     setPinnedWishlistIds((prev) => prev.filter((x) => x !== id));
+    repo.deleteWishlistItem(id);
   };
 
   const updateWishlistSettings = (settings: Partial<WishlistSettings>) => {
-    setWishlistSettings((prev) => ({ ...prev, ...settings }));
+    setWishlistSettings((prev) => {
+      const merged = { ...prev, ...settings };
+      repo.updateSettings({
+        detour_budget_min: merged.detourBudgetPerErrand,
+        daily_detour_budget_min: merged.totalDailyDetourBudget,
+        max_alerts_per_day: merged.maxAlertsPerDay,
+        quiet_mode: merged.quietModeMoving,
+      });
+      return merged;
+    });
   };
 
   const triggerMockOnTheWayPrompt = (customItem?: WishlistItem) => {
@@ -565,10 +653,27 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         landmark: item.landmark,
         area: item.area,
       });
+
+      repo.logPrompt({
+        plan_id: activePlanId,
+        item_id: item.id,
+        detour_m: item.distanceOffRouteMeters || 350,
+        detour_min: item.detourMinutes || 3,
+        action: 'ignored',
+      });
     }
   };
 
   const dismissOnTheWayPrompt = () => {
+    if (activeOnTheWayPrompt) {
+      repo.logPrompt({
+        plan_id: activePlanId,
+        item_id: activeOnTheWayPrompt.id,
+        detour_m: activeOnTheWayPrompt.distanceMeters,
+        detour_min: activeOnTheWayPrompt.detourMinutes,
+        action: 'dismissed',
+      });
+    }
     setActiveOnTheWayPrompt(null);
   };
 
@@ -594,7 +699,18 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setStops((prev) => {
       const copy = [...prev];
       copy.splice(activeStopIndex + 1, 0, newStop);
-      return copy.map((s, idx) => ({ ...s, order: idx + 1 }));
+      const resequenced = copy.map((s, idx) => ({ ...s, order: idx + 1 }));
+      repo.saveOptimisedOrder(activePlanId, resequenced.map((s) => s.id));
+      return resequenced;
+    });
+
+    repo.addStop(newStop, activePlanId);
+    repo.logPrompt({
+      plan_id: activePlanId,
+      item_id: prompt.id,
+      detour_m: prompt.distanceMeters,
+      detour_min: prompt.detourMinutes,
+      action: 'added',
     });
 
     setActiveOnTheWayPrompt(null);
@@ -616,11 +732,7 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setActiveStopIndex(0);
     setWishlist([]);
     setPinnedWishlistIds([]);
-    localStorage.removeItem(`${STORAGE_KEY}_stops`);
-    localStorage.removeItem(`${STORAGE_KEY}_active_idx`);
-    localStorage.removeItem(`${STORAGE_KEY}_completed`);
-    localStorage.removeItem(`${STORAGE_KEY}_wishlist`);
-    localStorage.removeItem(`${STORAGE_KEY}_pinned_wishlist`);
+    repo.deleteAllMyData();
   };
 
   const totalKm = stops.reduce((acc, s) => Math.max(acc, s.distanceKm), 0);
@@ -667,6 +779,7 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <RouteContext.Provider
       value={{
         stops,
+        activePlanId,
         activeStopIndex,
         completedStopIds,
         skippedStopIds,
@@ -687,6 +800,8 @@ export const RouteProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setTextSize,
         blockBackgroundTracking,
         setBlockBackgroundTracking,
+        locationOptIn,
+        setLocationOptIn,
         riderPayPerStop,
         setRiderPayPerStop,
         codBonusPercent,

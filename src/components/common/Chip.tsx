@@ -21,18 +21,20 @@ export const Chip: React.FC<ChipProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-[4px] border-2 border-[#0E0E0E] text-xs font-mono font-bold transition-all cursor-pointer select-none ${
+      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-body font-medium transition-all duration-200 cursor-pointer select-none ${
         active
-          ? 'bg-[#F6B800] text-[#0E0E0E] shadow-hard-sm translate-y-[-1px]'
-          : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA] shadow-none'
+          ? 'bg-[#F2B84B] text-[#1F2A27] border-[#E0A11B]/40 shadow-warm-sm font-semibold'
+          : 'bg-[#FFFDF9] dark:bg-[#1C2421] text-[#55625D] dark:text-[#95A39D] hover:text-[#1F2A27] dark:hover:text-[#FAF6EF] border-[#E6DECF] dark:border-[#2B3833] hover:bg-[#F2ECE1] dark:hover:bg-[#25302C]'
       } ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
       <span className="whitespace-nowrap">{label}</span>
       {count !== undefined && (
         <span
-          className={`px-1.5 py-0.2 rounded-[2px] text-[10px] tabular-nums ${
-            active ? 'bg-[#0E0E0E] text-white' : 'bg-[#E8E4DA] text-[#0E0E0E]'
+          className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono tabular-nums leading-none ${
+            active
+              ? 'bg-[#1F2A27] text-[#FAF6EF]'
+              : 'bg-[#F2ECE1] dark:bg-[#2B3833] text-[#55625D] dark:text-[#95A39D]'
           }`}
         >
           {count}

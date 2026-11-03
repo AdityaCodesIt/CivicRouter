@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from './Button';
-import { Plus } from 'lucide-react';
 import {
   EmptyClipboardIllustration,
   EmptyScooterIllustration,
@@ -35,7 +34,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const renderVisual = () => {
     if (icon) {
       return (
-        <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-[6px] border-2 border-[#0E0E0E] bg-[#F6B800] shadow-hard-sm">
+        <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl border border-[#E6DECF] dark:border-[#2B3833] bg-[#FBEBC6]/60 text-[#1F2A27] shadow-warm-sm">
           {icon}
         </div>
       );
@@ -43,12 +42,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
     switch (illustrationType) {
       case 'scooter':
-        return <EmptyScooterIllustration className="mx-auto mb-2" size={130} />;
+        return <EmptyScooterIllustration className="mx-auto mb-3" size={130} />;
       case 'offline':
-        return <OfflineModeIllustration className="mx-auto mb-2" size={130} />;
+        return <OfflineModeIllustration className="mx-auto mb-3" size={130} />;
       case 'clipboard':
       default:
-        return <EmptyClipboardIllustration className="mx-auto mb-2" size={130} />;
+        return <EmptyClipboardIllustration className="mx-auto mb-3" size={130} />;
     }
   };
 
@@ -56,46 +55,40 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     <div
       role="region"
       aria-label={title}
-      className={`p-6 sm:p-8 my-6 text-center border-2 border-dashed border-[#0E0E0E] rounded-[6px] bg-white shadow-hard ${className}`}
+      className={`p-8 sm:p-10 my-6 text-center border border-dashed border-[#D3C8B4] dark:border-[#384A43] rounded-2xl bg-[#FFFDF9] dark:bg-[#1C2421] shadow-warm max-w-xl mx-auto ${className}`}
     >
       {renderVisual()}
 
-      <div className="font-mono text-xs font-bold text-[#0E0E0E]/60 uppercase tracking-widest mb-1 mt-2">
-        TRANSIT MANIFEST NOTICE
-      </div>
-
-      <h3 className="font-display font-black text-xl sm:text-2xl text-[#0E0E0E] mb-2 leading-tight">
+      <h3 className="font-display font-bold text-xl text-[#1F2A27] dark:text-[#FAF6EF] mb-2 tracking-tight">
         {title}
       </h3>
-
-      <p className="font-body text-sm sm:text-base text-[#0E0E0E]/80 max-w-md mx-auto mb-6 leading-relaxed">
+      <p className="font-body text-sm text-[#55625D] dark:text-[#95A39D] max-w-md mx-auto mb-6 leading-relaxed">
         {description}
       </p>
 
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-sm mx-auto">
-        {actionLabel && onAction && (
-          <Button
-            variant="primary"
-            size="touch"
-            onClick={onAction}
-            icon={<Plus className="w-5 h-5 stroke-[2.5]" />}
-            className="w-full sm:w-auto"
-          >
-            {actionLabel}
-          </Button>
-        )}
+      {(actionLabel || secondaryActionLabel) && (
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          {actionLabel && onAction && (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={onAction}
+            >
+              {actionLabel}
+            </Button>
+          )}
 
-        {secondaryActionLabel && onSecondaryAction && (
-          <Button
-            variant="secondary"
-            size="touch"
-            onClick={onSecondaryAction}
-            className="w-full sm:w-auto"
-          >
-            {secondaryActionLabel}
-          </Button>
-        )}
-      </div>
+          {secondaryActionLabel && onSecondaryAction && (
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={onSecondaryAction}
+            >
+              {secondaryActionLabel}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

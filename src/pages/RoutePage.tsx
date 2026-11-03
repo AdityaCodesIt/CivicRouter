@@ -4,29 +4,16 @@ import { useRoute } from '../context/RouteContext';
 import { Button } from '../components/common/Button';
 import { StopCard } from '../components/common/StopCard';
 import { EmptyState } from '../components/common/EmptyState';
-import { Chip } from '../components/common/Chip';
-import { Toggle } from '../components/common/Toggle';
 import { TransitLeafletMap } from '../components/route/TransitLeafletMap';
 import { OnTheWayPromptBanner } from '../components/navigation/OnTheWayPromptBanner';
 import { PitstopRadarRow } from '../components/navigation/PitstopRadarRow';
-import { DeliveryStop, PriorityLevel } from '../data/mockStops';
+import { PriorityLevel } from '../data/mockStops';
 import {
   Navigation,
-  Sparkles,
-  ArrowRight,
   AlertTriangle,
-  Clock,
-  Compass,
-  Layers,
   ChevronUp,
   ChevronDown,
   GripVertical,
-  CheckCircle2,
-  Sliders,
-  ShieldAlert,
-  ArrowUpRight,
-  ArrowDownRight,
-  Share2,
 } from 'lucide-react';
 
 export const RoutePage: React.FC = () => {
@@ -37,7 +24,6 @@ export const RoutePage: React.FC = () => {
     setActiveStopIndex,
     resetToMockData,
     stats,
-    t,
   } = useRoute();
 
   const navigate = useNavigate();
@@ -52,7 +38,6 @@ export const RoutePage: React.FC = () => {
   // Calculate sorted stops based on selected Priority Mode
   const sequencedStops = useMemo(() => {
     if (manualReorderMode) {
-      // In manual mode, respect the exact user-ordered stops
       return stops;
     }
 
@@ -63,7 +48,6 @@ export const RoutePage: React.FC = () => {
     };
 
     if (priorityMode === 'strict') {
-      // Strict: Forces ALL High priority deliveries first, then Medium, then Low, then North to South
       return [...stops].sort((a, b) => {
         if (priorityRank[a.priority] !== priorityRank[b.priority]) {
           return priorityRank[a.priority] - priorityRank[b.priority];
@@ -76,14 +60,10 @@ export const RoutePage: React.FC = () => {
         distanceKm: Number((1.8 + idx * 2.5).toFixed(1)),
       }));
     } else {
-      // Smart: Optimizes along the corridor North to South, but ensures urgent pickups & high deadlines come early
       return [...stops].sort((a, b) => {
-        // High priority still gets primary boost
         if (a.priority === 'high' && b.priority !== 'high') return -1;
         if (b.priority === 'high' && a.priority !== 'high') return 1;
-        // Pickups before drops if in same priority tier
         if (a.type !== b.type) return a.type === 'pickup' ? -1 : 1;
-        // Group geographically by latitude corridor
         return b.coordinates.lat - a.coordinates.lat;
       }).map((s, idx) => ({
         ...s,
@@ -94,10 +74,8 @@ export const RoutePage: React.FC = () => {
     }
   }, [stops, priorityMode, manualReorderMode]);
 
-  // Selected stop reference
   const selectedStop = sequencedStops.find((s) => s.id === selectedStopId) || sequencedStops[0];
 
-  // Dynamic km saved metric based on mode (e.g. smart saves 6.2 km, strict saves 4.4 km due to priority constraints)
   const savedKm = priorityMode === 'smart' ? '6.2 km' : '4.4 km';
   const totalKm = sequencedStops.reduce((acc, s) => Math.max(acc, s.distanceKm), 0);
   const totalMinutes = sequencedStops.reduce((acc, s) => Math.max(acc, s.etaMinutes), 0);
@@ -105,7 +83,6 @@ export const RoutePage: React.FC = () => {
   const mins = totalMinutes % 60;
   const formattedDuration = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
 
-  // Late deadline evaluation helper
   const evaluateDeadlineRisk = (deadline?: string, etaMinutes: number = 0) => {
     if (!deadline || typeof deadline !== 'string') return { isRisk: false, text: '' };
     const match = deadline.match(/(\d+):(\d+)\s*(AM|PM)?/i);
@@ -117,7 +94,6 @@ export const RoutePage: React.FC = () => {
     if (isPM && h !== 12) h += 12;
     if (!isPM && h === 12) h = 0;
 
-    // Shift starts at 10:00 AM (0 min mark)
     const deadlineMinutesFromStart = (h - 10) * 60 + m;
     if (deadlineMinutesFromStart <= 0) {
       return { isRisk: true, text: `Overdue (deadline was ${deadline})` };
@@ -132,7 +108,6 @@ export const RoutePage: React.FC = () => {
     return { isRisk: false, text: '' };
   };
 
-  // Drag-and-drop reorder handlers for manual mode
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
@@ -175,31 +150,31 @@ export const RoutePage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
       {/* 1. TOP SUMMARY STRIP (METRICS & TOGGLE CONTROLS) */}
-      <div className="bg-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard p-4 mb-5">
+      <div className="soft-card bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm p-4 sm:p-5 mb-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Left: Headline & Saved Metric Badge */}
           <div>
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="font-mono text-xs font-bold bg-[#15171A] text-white px-2.5 py-0.5 rounded-[2px] border border-[#0E0E0E]">
+            <div className="flex items-center gap-2 flex-wrap mb-1.5">
+              <span className="font-mono text-xs font-semibold bg-[var(--color-bg-sunken)] text-[var(--color-ink)] px-3 py-1 rounded-full border border-[var(--color-border)]">
                 {sequencedStops.length} STOPS · {stats.highPriorityCount} HIGH PRIORITY
               </span>
 
               {/* Saved vs Your Order Badge */}
-              <span className="font-mono text-xs font-bold bg-[#2E7D4F] text-white px-2.5 py-0.5 rounded-[2px] border border-[#0E0E0E] flex items-center gap-1 shadow-hard-sm">
+              <span className="font-mono text-xs font-semibold bg-[var(--color-sage-tint)] text-[var(--color-sage-deep)] border border-[var(--color-sage)] px-3 py-1 rounded-full flex items-center gap-1">
                 <span>SAVED VS YOUR ORDER: {savedKm}</span>
               </span>
             </div>
 
-            <div className="flex items-center gap-4 text-xs font-mono font-bold text-[#0E0E0E] mt-2">
-              <span className="text-base font-extrabold font-display">
+            <div className="flex items-center gap-4 text-xs font-mono font-medium text-[var(--color-ink)] mt-2">
+              <span className="text-base font-bold font-display">
                 TOTAL: {totalKm} KM
               </span>
-              <span>·</span>
-              <span className="text-base font-extrabold font-display text-[#2E7D4F]">
+              <span className="text-[var(--color-ink-muted)]">·</span>
+              <span className="text-base font-bold font-display text-[var(--color-sage-deep)]">
                 ~{formattedDuration}
               </span>
-              <span>·</span>
-              <span className="text-[#0E0E0E]/70">
+              <span className="text-[var(--color-ink-muted)]">·</span>
+              <span className="text-[var(--color-ink-secondary)]">
                 Avg. Stop: ~14 mins
               </span>
             </div>
@@ -208,17 +183,17 @@ export const RoutePage: React.FC = () => {
           {/* Right: Strict vs Smart Priority Toggle & Reorder Mode */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Priority Mode Selector Segmented Control */}
-            <div className="flex items-center border-2 border-[#0E0E0E] rounded-[4px] bg-[#F4F1EA] p-0.5 font-mono text-xs font-bold">
+            <div className="flex items-center border border-[var(--color-border)] rounded-full bg-[var(--color-bg-sunken)] p-1 font-body text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => {
                   setPriorityMode('smart');
                   setManualReorderMode(false);
                 }}
-                className={`min-h-[36px] px-3 rounded-[3px] transition-all cursor-pointer ${
+                className={`h-9 px-3.5 rounded-full transition-all cursor-pointer ${
                   priorityMode === 'smart' && !manualReorderMode
-                    ? 'bg-[#F6B800] text-[#0E0E0E] shadow-hard-sm'
-                    : 'text-[#0E0E0E]/70 hover:text-[#0E0E0E]'
+                    ? 'bg-[var(--color-marigold)] text-[#1F2A27] shadow-sm font-bold'
+                    : 'text-[var(--color-ink-secondary)] hover:text-[var(--color-ink)]'
                 }`}
               >
                 Smart Priority
@@ -230,10 +205,10 @@ export const RoutePage: React.FC = () => {
                   setPriorityMode('strict');
                   setManualReorderMode(false);
                 }}
-                className={`min-h-[36px] px-3 rounded-[3px] transition-all cursor-pointer ${
+                className={`h-9 px-3.5 rounded-full transition-all cursor-pointer ${
                   priorityMode === 'strict' && !manualReorderMode
-                    ? 'bg-[#D7372B] text-white shadow-hard-sm'
-                    : 'text-[#0E0E0E]/70 hover:text-[#0E0E0E]'
+                    ? 'bg-[#FBE1DB] dark:bg-[#2C1917] text-[#D9604C] dark:text-[#F4A58A] border border-[#D9604C]/40 shadow-sm font-bold'
+                    : 'text-[var(--color-ink-secondary)] hover:text-[var(--color-ink)]'
                 }`}
               >
                 Strict Priority
@@ -244,10 +219,10 @@ export const RoutePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setManualReorderMode(!manualReorderMode)}
-              className={`min-h-[40px] px-3 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`h-11 px-3.5 rounded-full border border-[var(--color-border)] font-body text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 manualReorderMode
-                  ? 'bg-[#15171A] text-white shadow-hard-sm'
-                  : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                  ? 'bg-[#F2B84B] text-[#1F2A27] border-[#E0A11B] font-bold shadow-sm'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
               <GripVertical className="w-4 h-4" />
@@ -259,8 +234,7 @@ export const RoutePage: React.FC = () => {
               variant="primary"
               size="md"
               onClick={handleStartDay}
-              icon={<Navigation className="w-4 h-4 text-[#0E0E0E]" />}
-              className="shadow-hard"
+              icon={<Navigation className="w-4 h-4 text-[#1F2A27]" />}
             >
               Start Day
             </Button>
@@ -268,9 +242,9 @@ export const RoutePage: React.FC = () => {
         </div>
 
         {/* Priority Mode Advisory Info */}
-        <div className="mt-3 pt-3 border-t border-[#0E0E0E]/15 flex items-center justify-between text-[11px] font-body text-[#0E0E0E]/80">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#F6B800] border border-[#0E0E0E]" />
+        <div className="mt-3.5 pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-xs font-body text-[var(--color-ink-secondary)]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-marigold)]" />
             <span>
               {priorityMode === 'smart'
                 ? 'Smart Priority active: Groups North-to-South drops along Mumbai arterials while honoring critical deadlines.'
@@ -279,8 +253,8 @@ export const RoutePage: React.FC = () => {
           </div>
 
           {manualReorderMode && (
-            <span className="font-mono font-bold text-[#E58A00]">
-              Manual reorder mode active: Drag cards below to set custom sequence.
+            <span className="font-mono text-xs font-semibold text-[#8c5e03]">
+              Manual reorder active: Drag cards below to set custom sequence.
             </span>
           )}
         </div>
@@ -294,13 +268,13 @@ export const RoutePage: React.FC = () => {
 
       {/* 2. TWO-PANE LAYOUT: LIST (LEFT) & LEAFLET MAP (RIGHT) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* LEFT PANE: ORDER LIST & LATE WARNINGS (Desktop: full list; Mobile: hidden or toggled via sheet) */}
+        {/* LEFT PANE: ORDER LIST & LATE WARNINGS */}
         <div className="hidden lg:block lg:col-span-5 space-y-4 max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
-          <div className="flex items-center justify-between border-b-2 border-[#0E0E0E] pb-2">
-            <span className="font-mono text-xs font-bold text-[#0E0E0E] uppercase">
-              DELIVERY SEQUENCE TIMELINE ({sequencedStops.length} STOPS)
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+            <span className="font-body font-bold text-xs text-[var(--color-ink)] uppercase tracking-wider">
+              Delivery Sequence Timeline ({sequencedStops.length} Stops)
             </span>
-            <span className="font-mono text-[10px] text-[#2E7D4F] font-bold">
+            <span className="font-mono text-[10px] text-[var(--color-sage-deep)] font-semibold">
               ETA CALCULATED
             </span>
           </div>
@@ -308,19 +282,16 @@ export const RoutePage: React.FC = () => {
           <div className="space-y-3">
             {sequencedStops.map((stop, idx) => {
               const risk = evaluateDeadlineRisk(stop.deadline, stop.etaMinutes);
-              const isSelected = stop.id === selectedStopId;
 
               return (
                 <div key={stop.id} className="relative">
-                  {/* Dashed connector between stops */}
                   {idx > 0 && (
-                    <div className="w-0.5 h-3 ml-7 dashed-route-v border-l-2 border-dashed border-[#0E0E0E]" />
+                    <div className="w-0.5 h-3 ml-7 border-l-2 border-dashed border-[var(--color-border)]" />
                   )}
 
-                  {/* Late Warning Flag Alert Box if Deadline at Risk */}
                   {risk.isRisk && (
-                    <div className="mb-1.5 p-2 bg-[#D7372B]/10 border-2 border-[#D7372B] rounded-[4px] font-mono text-[11px] font-bold text-[#D7372B] flex items-center gap-1.5 shadow-hard-sm animate-pulse">
-                      <AlertTriangle className="w-4 h-4 shrink-0 stroke-[2.5]" />
+                    <div className="mb-1.5 p-2 bg-[var(--color-priority-high-bg)] border border-[var(--color-priority-high)] rounded-xl font-mono text-xs font-semibold text-[var(--color-priority-high)] flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
                       <span>{risk.text}</span>
                     </div>
                   )}
@@ -346,21 +317,21 @@ export const RoutePage: React.FC = () => {
           </div>
 
           {/* Bottom Start Day Action Banner */}
-          <div className="pt-4 sticky bottom-0 bg-[#F4F1EA] -mx-2 px-2 pb-2">
+          <div className="pt-4 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg)] via-[var(--color-bg)] to-transparent -mx-2 px-2 pb-2">
             <Button
               variant="primary"
               size="touch"
               fullWidth
               onClick={handleStartDay}
-              icon={<Navigation className="w-5 h-5 text-[#0E0E0E] stroke-[2.5]" />}
+              icon={<Navigation className="w-5 h-5 text-[var(--color-ink)] stroke-[2.5]" />}
             >
               Start Day (Driver Mode)
             </Button>
           </div>
         </div>
 
-        {/* RIGHT PANE: LEAFLET MAP WITH GRAYSCALE TILES & YELLOW POLYLINE */}
-        <div className="lg:col-span-7 h-[420px] lg:h-[calc(100vh-220px)] sticky top-20">
+        {/* RIGHT PANE: LEAFLET MAP */}
+        <div className="lg:col-span-7 h-[420px] lg:h-[calc(100vh-220px)] sticky top-20 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-sm">
           <TransitLeafletMap
             stops={sequencedStops}
             activeStopId={selectedStopId}
@@ -371,48 +342,49 @@ export const RoutePage: React.FC = () => {
       </div>
 
       {/* 3. MOBILE COLLAPSIBLE BOTTOM SHEET */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-[#0E0E0E] shadow-[0_-6px_0_0_#0E0E0E] transition-all duration-200">
-        {/* Drag handle / Toggle Header */}
+      <div className="lg:hidden fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 bg-[var(--color-surface)] border-t border-[var(--color-border)] rounded-t-2xl shadow-xl transition-all duration-200">
+        {/* Drag Pill Affordance */}
+        <div className="w-10 h-1 bg-[var(--color-border-strong)]/60 rounded-full mx-auto mt-2" />
+
         <div
           onClick={() => setMobileSheetExpanded(!mobileSheetExpanded)}
-          className="p-3 bg-[#F4F1EA] border-b-2 border-[#0E0E0E] flex items-center justify-between cursor-pointer select-none"
+          className="p-3 bg-[var(--color-bg-sunken)] border-b border-[var(--color-border)] rounded-t-xl flex items-center justify-between cursor-pointer select-none"
         >
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[4px] bg-[#F6B800] border-2 border-[#0E0E0E] font-mono font-bold text-xs flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-[var(--color-marigold)] text-[#1F2A27] font-mono font-bold text-xs flex items-center justify-center">
               {sequencedStops.length}
             </div>
             <div>
-              <div className="font-display font-bold text-sm text-[#0E0E0E]">
+              <div className="font-body font-bold text-sm text-[var(--color-ink)]">
                 Route Order & Milestones
               </div>
-              <div className="font-mono text-[10px] text-[#0E0E0E]/70">
+              <div className="font-mono text-[11px] text-[var(--color-ink-secondary)]">
                 {totalKm} km · {formattedDuration} · saved {savedKm}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] font-bold text-[#0E0E0E]">
+            <span className="font-body text-xs font-semibold text-[var(--color-ink)]">
               {mobileSheetExpanded ? 'Collapse' : 'Expand Order'}
             </span>
             {mobileSheetExpanded ? (
-              <ChevronDown className="w-5 h-5" />
+              <ChevronDown className="w-5 h-5 text-[var(--color-ink)]" />
             ) : (
-              <ChevronUp className="w-5 h-5" />
+              <ChevronUp className="w-5 h-5 text-[var(--color-ink)]" />
             )}
           </div>
         </div>
 
-        {/* Expanded Sheet Content */}
         {mobileSheetExpanded && (
-          <div className="max-h-[60vh] overflow-y-auto p-4 space-y-3 font-body bg-[#F4F1EA]">
+          <div className="max-h-[55vh] overflow-y-auto p-3.5 space-y-3 font-body bg-[var(--color-bg-sunken)]">
             {sequencedStops.map((stop, idx) => {
               const risk = evaluateDeadlineRisk(stop.deadline, stop.etaMinutes);
               return (
                 <div key={stop.id} className="relative">
                   {risk.isRisk && (
-                    <div className="mb-1 p-1.5 bg-[#D7372B]/10 border-2 border-[#D7372B] rounded-[4px] font-mono text-[10px] font-bold text-[#D7372B] flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+                    <div className="mb-1 p-2 bg-[var(--color-priority-high-bg)] border border-[var(--color-priority-high)] rounded-xl font-mono text-[11px] font-semibold text-[var(--color-priority-high)] flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                       <span>{risk.text}</span>
                     </div>
                   )}
@@ -438,14 +410,13 @@ export const RoutePage: React.FC = () => {
           </div>
         )}
 
-        {/* Sticky Mobile Primary Button */}
-        <div className="p-3 bg-white border-t border-[#0E0E0E]/15">
+        <div className="p-3 bg-[var(--color-surface)] border-t border-[var(--color-border)]">
           <Button
             variant="primary"
             size="touch"
             fullWidth
             onClick={handleStartDay}
-            icon={<Navigation className="w-5 h-5 text-[#0E0E0E]" />}
+            icon={<Navigation className="w-5 h-5 text-[#1F2A27]" />}
           >
             Start Day (Driver Mode)
           </Button>

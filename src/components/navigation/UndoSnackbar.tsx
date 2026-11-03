@@ -48,13 +48,13 @@ export const UndoSnackbar: React.FC<UndoSnackbarProps> = ({
       : 'Skipped';
 
   return (
-    <div className="fixed bottom-24 sm:bottom-28 left-4 right-4 max-w-md mx-auto z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
-      <div className="bg-[#15171A] text-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard p-3 flex items-center justify-between gap-3">
-        <div className="min-w-0 flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F6B800] shrink-0" />
-          <div className="truncate text-xs font-mono">
-            <span className="font-bold text-[#F6B800]">{action.stopName}:</span>{' '}
-            <span className="text-white/80">{actionText}</span>
+    <div className="fixed bottom-[calc(9rem+env(safe-area-inset-bottom,0px))] sm:bottom-28 left-4 right-4 max-w-md mx-auto z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
+      <div className="bg-[#1F2A27] text-[#FAF6EF] dark:bg-[#101514] border border-white/10 dark:border-[#2B3833] rounded-2xl shadow-xl p-3 flex items-center justify-between gap-3">
+        <div className="min-w-0 flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-marigold)] shrink-0 animate-pulse" />
+          <div className="truncate text-xs font-body">
+            <span className="font-semibold text-[var(--color-marigold)]">{action.stopName}:</span>{' '}
+            <span className="text-white/85">{actionText}</span>
           </div>
         </div>
 
@@ -62,16 +62,16 @@ export const UndoSnackbar: React.FC<UndoSnackbarProps> = ({
           <button
             type="button"
             onClick={onUndo}
-            className="min-h-[38px] px-3 bg-[#F6B800] hover:bg-[#e0a700] text-[#0E0E0E] border border-[#0E0E0E] rounded-[3px] font-mono text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-hard-sm active:translate-y-[1px]"
+            className="h-8 px-3 bg-[var(--color-marigold)] hover:bg-[var(--color-marigold-hover)] text-[#1F2A27] rounded-full font-mono text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all active:scale-95"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>UNDO ({timeLeft}s)</span>
+            <span>Undo ({timeLeft}s)</span>
           </button>
 
           <button
             type="button"
             onClick={onDismiss}
-            className="w-8 h-8 flex items-center justify-center text-white/60 hover:text-white"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-colors"
             title="Dismiss"
           >
             <X className="w-4 h-4" />

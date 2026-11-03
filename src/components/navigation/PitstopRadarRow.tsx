@@ -20,20 +20,20 @@ export const PitstopRadarRow: React.FC<PitstopRadarRowProps> = ({
   className = '',
   showSimulatorButton = true,
 }) => {
-  const { triggerMockOnTheWayPrompt, addStop, activeStopIndex } = useRoute();
+  const { triggerMockOnTheWayPrompt, addStop } = useRoute();
   const [addedId, setAddedId] = useState<string | null>(null);
 
   const getRadarIcon = (type: string) => {
     switch (type) {
       case 'water':
-        return <Droplets className="w-3.5 h-3.5 text-[#3E7C7A]" />;
+        return <Droplets className="w-3.5 h-3.5 text-[var(--color-sky-accent)]" />;
       case 'restroom':
-        return <Droplets className="w-3.5 h-3.5 text-[#2E7D4F]" />;
+        return <Droplets className="w-3.5 h-3.5 text-[var(--color-sage-deep)]" />;
       case 'fuel':
-        return <Fuel className="w-3.5 h-3.5 text-[#D7372B]" />;
+        return <Fuel className="w-3.5 h-3.5 text-[var(--color-priority-high)]" />;
       case 'chai':
       default:
-        return <Coffee className="w-3.5 h-3.5 text-[#E58A00]" />;
+        return <Coffee className="w-3.5 h-3.5 text-[#8c5e03]" />;
     }
   };
 
@@ -58,13 +58,13 @@ export const PitstopRadarRow: React.FC<PitstopRadarRowProps> = ({
 
   return (
     <div
-      className={`bg-[#FFFFFF] border-2 border-[#0E0E0E] rounded-[6px] shadow-hard-sm p-3 ${className}`}
+      className={`bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm p-3.5 ${className}`}
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <Compass className="w-4 h-4 text-[#F6B800]" />
-          <span className="font-mono text-xs font-bold text-[#0E0E0E] uppercase">
-            PIT-STOP RADAR ALONG ACTIVE CORRIDOR
+          <Compass className="w-4 h-4 text-[var(--color-marigold)]" />
+          <span className="font-mono text-xs font-semibold text-[var(--color-ink)] uppercase tracking-wide">
+            Pit-Stop Radar Along Corridor
           </span>
         </div>
 
@@ -73,11 +73,11 @@ export const PitstopRadarRow: React.FC<PitstopRadarRowProps> = ({
           <button
             type="button"
             onClick={() => triggerMockOnTheWayPrompt()}
-            className="px-2.5 py-1 bg-[#15171A] hover:bg-black text-[#F6B800] border border-[#0E0E0E] rounded-[3px] font-mono text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-hard-sm active:translate-y-[1px]"
+            className="px-2.5 py-1 bg-[#1F2A27] hover:bg-[#2C3B37] text-[#F2B84B] dark:bg-[#2C2415] dark:text-[#F2B84B] dark:border dark:border-[#F2B84B]/30 rounded-full font-mono text-[10px] font-semibold flex items-center gap-1 cursor-pointer transition-all shadow-sm active:scale-95"
             title="Demo Simulator: Trigger On-the-way slide-in alert"
           >
-            <Sparkles className="w-3 h-3 text-[#F6B800]" />
-            <span>Simulate On-The-Way Alert</span>
+            <Sparkles className="w-3 h-3 text-[var(--color-marigold)]" />
+            <span>Simulate Alert</span>
           </button>
         )}
       </div>
@@ -89,17 +89,17 @@ export const PitstopRadarRow: React.FC<PitstopRadarRowProps> = ({
           return (
             <div
               key={item.id}
-              className="p-2 bg-[#F4F1EA] border border-[#0E0E0E] rounded-[4px] flex items-center justify-between gap-1.5 transition-colors hover:bg-white"
+              className="p-2.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl flex items-center justify-between gap-1.5 transition-colors hover:bg-[var(--color-surface)]"
             >
               <div className="min-w-0">
-                <div className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase text-[#0E0E0E]/70">
+                <div className="flex items-center gap-1 text-[10px] font-mono font-medium uppercase text-[var(--color-ink-muted)]">
                   {getRadarIcon(item.type)}
                   <span>{item.type}</span>
                 </div>
-                <div className="font-display font-bold text-xs text-[#0E0E0E] truncate">
+                <div className="font-body font-semibold text-xs text-[var(--color-ink)] truncate mt-0.5">
                   {item.title}
                 </div>
-                <div className="font-mono text-[10px] text-[#2E7D4F] font-bold">
+                <div className="font-mono text-[10px] text-[var(--color-sage-deep)] font-medium">
                   +{item.distanceOffRouteMeters}m · +{item.detourMinutes}m
                 </div>
               </div>
@@ -107,15 +107,15 @@ export const PitstopRadarRow: React.FC<PitstopRadarRowProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickAddRadar(item)}
-                className={`w-7 h-7 shrink-0 rounded-[3px] border border-[#0E0E0E] flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-7 h-7 shrink-0 rounded-full border border-[var(--color-border)] flex items-center justify-center transition-all cursor-pointer ${
                   isJustAdded
-                    ? 'bg-[#2E7D4F] text-white'
-                    : 'bg-white hover:bg-[#F6B800] text-[#0E0E0E]'
+                    ? 'bg-[var(--color-status-success)] text-white border-transparent'
+                    : 'bg-[var(--color-surface)] hover:bg-[var(--color-marigold)] hover:text-[#1F2A27] text-[var(--color-ink)]'
                 }`}
                 title={`Add ${item.title} as quick stop`}
               >
                 {isJustAdded ? (
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                 ) : (
                   <Plus className="w-3.5 h-3.5" />
                 )}

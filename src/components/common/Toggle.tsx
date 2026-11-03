@@ -20,13 +20,19 @@ export const Toggle: React.FC<ToggleProps> = ({
   return (
     <label
       htmlFor={id}
-      className={`inline-flex items-center justify-between gap-4 cursor-pointer select-none py-2 ${className}`}
+      className={`inline-flex items-center justify-between gap-4 cursor-pointer select-none py-2 w-full ${className}`}
     >
       {(label || sublabel) && (
-        <div className="flex flex-col">
-          {label && <span className="font-display font-bold text-sm text-[#0E0E0E]">{label}</span>}
+        <div className="flex flex-col pr-2">
+          {label && (
+            <span className="font-display font-bold text-sm text-[#1F2A27] dark:text-[#FAF6EF]">
+              {label}
+            </span>
+          )}
           {sublabel && (
-            <span className="font-body text-xs text-[#0E0E0E]/70">{sublabel}</span>
+            <span className="font-body text-xs text-[#55625D] dark:text-[#95A39D] mt-0.5 leading-relaxed">
+              {sublabel}
+            </span>
           )}
         </div>
       )}
@@ -40,16 +46,18 @@ export const Toggle: React.FC<ToggleProps> = ({
           className="sr-only"
         />
         <div
-          className={`w-14 h-8 rounded-[4px] border-2 border-[#0E0E0E] transition-colors ${
-            checked ? 'bg-[#F6B800] shadow-hard-sm' : 'bg-[#E8E4DA]'
+          className={`w-12 h-7 rounded-full border transition-colors duration-250 ease-out p-0.5 ${
+            checked
+              ? 'bg-[#F2B84B] border-[#E0A11B]/50'
+              : 'bg-[#F2ECE1] dark:bg-[#25302C] border-[#E6DECF] dark:border-[#384A43]'
           }`}
         >
           <div
-            className={`w-6 h-6 rounded-[2px] border-2 border-[#0E0E0E] bg-white transition-transform duration-100 ease-out mt-[2px] ml-[2px] flex items-center justify-center font-mono text-[9px] font-bold ${
-              checked ? 'translate-x-6 bg-[#0E0E0E] text-white' : 'translate-x-0 text-[#0E0E0E]'
+            className={`w-6 h-6 rounded-full bg-white dark:bg-[#FAF6EF] shadow-warm-sm transition-transform duration-250 cubic-bezier(0.22, 1, 0.36, 1) flex items-center justify-center ${
+              checked ? 'translate-x-5' : 'translate-x-0'
             }`}
           >
-            {checked ? 'ON' : 'OFF'}
+            {checked && <div className="w-2 h-2 rounded-full bg-[#1F2A27]" />}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
-import { MapPin, Navigation, Compass, Check } from 'lucide-react';
+import { MapPin, Compass, Check } from 'lucide-react';
 import { mumbaiPlacesDatabase, MumbaiPlaceSuggestion } from '../../data/mockStops';
 
 interface MapPickerModalProps {
@@ -65,7 +65,7 @@ export const MapPickerModal: React.FC<MapPickerModalProps> = ({
       size="lg"
       footer={
         <div className="flex items-center justify-between w-full">
-          <div className="font-mono text-xs text-[#0E0E0E]/70 hidden sm:block">
+          <div className="font-mono text-xs text-[var(--color-ink-secondary)] hidden sm:block">
             LAT: {selectedPlace.lat.toFixed(4)} · LNG: {selectedPlace.lng.toFixed(4)}
           </div>
           <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export const MapPickerModal: React.FC<MapPickerModalProps> = ({
       <div className="space-y-4">
         {/* Hotspot Presets */}
         <div>
-          <span className="font-mono text-xs font-bold text-[#0E0E0E]/70 uppercase block mb-2">
+          <span className="font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase tracking-wide block mb-2">
             Quick Landmark Hotspots:
           </span>
           <div className="flex flex-wrap gap-2">
@@ -103,10 +103,10 @@ export const MapPickerModal: React.FC<MapPickerModalProps> = ({
                 key={hotspot.label}
                 type="button"
                 onClick={() => handleSelectHotspot(hotspot.place, hotspot.x, hotspot.y)}
-                className={`px-2.5 py-1 text-xs font-mono font-bold rounded-[3px] border-2 border-[#0E0E0E] transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-body font-semibold rounded-full border transition-all cursor-pointer ${
                   selectedPlace.name === hotspot.place.name
-                    ? 'bg-[#F6B800] text-[#0E0E0E] shadow-hard-sm'
-                    : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                    ? 'bg-[var(--color-marigold)] text-[var(--color-ink)] border-[var(--color-marigold-hover)] shadow-sm'
+                    : 'bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
                 }`}
               >
                 {hotspot.label}
@@ -118,14 +118,14 @@ export const MapPickerModal: React.FC<MapPickerModalProps> = ({
         {/* Interactive Schematic Mumbai Map Canvas */}
         <div
           onClick={handleMapClick}
-          className="relative w-full h-72 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] cursor-crosshair overflow-hidden select-none"
+          className="relative w-full h-72 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-2xl cursor-crosshair overflow-hidden select-none shadow-inner"
         >
           {/* Subtle grid lines */}
           <div
-            className="absolute inset-0 opacity-[0.15] pointer-events-none"
+            className="absolute inset-0 opacity-[0.08] pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(#0E0E0E 1px, transparent 1px), linear-gradient(90deg, #0E0E0E 1px, transparent 1px)',
+                'linear-gradient(var(--color-ink) 1px, transparent 1px), linear-gradient(90deg, var(--color-ink) 1px, transparent 1px)',
               backgroundSize: '24px 24px',
             }}
           />
@@ -135,63 +135,66 @@ export const MapPickerModal: React.FC<MapPickerModalProps> = ({
             {/* Arabian Sea Coastline */}
             <path
               d="M 50 10 Q 110 90 90 150 T 130 250 L 140 280"
-              stroke="#0E0E0E"
+              stroke="var(--color-sky)"
               strokeWidth="3"
               strokeDasharray="4 4"
+              opacity="0.7"
             />
             {/* Western Express Highway Spine */}
             <path
               d="M 180 10 L 170 90 Q 165 140 140 200 L 135 280"
-              stroke="#0E0E0E"
-              strokeWidth="4"
+              stroke="var(--color-ink)"
+              strokeWidth="3"
+              opacity="0.3"
             />
             {/* Central Railway Line Spine */}
             <path
               d="M 230 10 L 210 110 Q 195 160 170 240 L 160 280"
-              stroke="#0E0E0E"
+              stroke="var(--color-sage-deep)"
               strokeWidth="2"
               strokeDasharray="6 3"
+              opacity="0.5"
             />
           </svg>
 
           {/* Hotspot anchor dots */}
-          <div className="absolute left-[62%] top-[35%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#15171A] border-2 border-white pointer-events-none" />
-          <div className="absolute left-[42%] top-[52%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#15171A] border-2 border-white pointer-events-none" />
-          <div className="absolute left-[38%] top-[64%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#15171A] border-2 border-white pointer-events-none" />
-          <div className="absolute left-[50%] top-[88%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#15171A] border-2 border-white pointer-events-none" />
+          <div className="absolute left-[62%] top-[35%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-ink)] border-2 border-white pointer-events-none" />
+          <div className="absolute left-[42%] top-[52%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-ink)] border-2 border-white pointer-events-none" />
+          <div className="absolute left-[38%] top-[64%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-ink)] border-2 border-white pointer-events-none" />
+          <div className="absolute left-[50%] top-[88%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-ink)] border-2 border-white pointer-events-none" />
 
           {/* Dropped Interactive Pin */}
           <div
-            className="absolute transition-all duration-100 ease-out -translate-x-1/2 -translate-y-full pointer-events-none flex flex-col items-center"
+            className="absolute transition-all duration-150 ease-out -translate-x-1/2 -translate-y-full pointer-events-none flex flex-col items-center"
             style={{ left: `${pinPos.x}%`, top: `${pinPos.y}%` }}
           >
-            <div className="px-2 py-0.5 bg-[#15171A] text-white border border-[#0E0E0E] rounded-[2px] font-mono text-[10px] font-bold whitespace-nowrap shadow-hard-sm mb-1">
+            <div className="px-2.5 py-0.5 bg-[#1F2A27] text-white dark:bg-[#101514] dark:text-[#FAF6EF] dark:border dark:border-[#2B3833] rounded-full font-mono text-[10px] font-medium whitespace-nowrap shadow-md mb-1">
               {selectedPlace.area}
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#F6B800] border-2 border-[#0E0E0E] flex items-center justify-center shadow-hard-sm">
-              <MapPin className="w-5 h-5 text-[#0E0E0E] fill-[#0E0E0E]" />
+            <div className="w-8 h-8 rounded-full bg-[var(--color-marigold)] border-2 border-white shadow-lg flex items-center justify-center text-[var(--color-ink)]">
+              <MapPin className="w-4 h-4 fill-current" />
             </div>
-            <div className="w-1.5 h-1.5 rounded-full bg-[#0E0E0E] -mt-1" />
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-ink)] -mt-0.5" />
           </div>
 
-          <div className="absolute bottom-2 left-2 bg-white/95 border border-[#0E0E0E] px-2 py-1 text-[10px] font-mono font-bold text-[#0E0E0E]">
-            CLICK ANYWHERE TO RE-POSITION PIN
+          <div className="absolute bottom-2.5 left-2.5 bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)] rounded-full px-3 py-1 text-[11px] font-body font-medium text-[var(--color-ink-secondary)] shadow-sm">
+            Click anywhere on the map canvas to place pin
           </div>
         </div>
 
         {/* Selected Landmark Details Box */}
-        <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px] flex items-start gap-3">
-          <div className="w-9 h-9 rounded-[4px] bg-[#F6B800] border-2 border-[#0E0E0E] flex items-center justify-center shrink-0 shadow-hard-sm">
-            <Compass className="w-5 h-5 text-[#0E0E0E]" />
+        <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-marigold-tint)] text-[var(--color-ink)] border border-[var(--color-marigold)]/30 flex items-center justify-center shrink-0">
+            <Compass className="w-5 h-5 text-[#8c5e03]" />
           </div>
           <div className="min-w-0">
-            <div className="font-mono text-[10px] font-bold text-[#0E0E0E]/60 uppercase">
-              PINNED LOCATION PREVIEW
+            <div className="font-mono text-[10px] font-semibold text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Pinned Location Preview
             </div>
-            <h4 className="font-display font-extrabold text-sm text-[#0E0E0E]">
+            <h4 className="font-body font-bold text-sm text-[var(--color-ink)] mt-0.5">
               {selectedPlace.name}
             </h4>
-            <p className="font-body text-xs text-[#0E0E0E]/80 mt-0.5">
+            <p className="font-body text-xs text-[var(--color-ink-secondary)] mt-0.5">
               {selectedPlace.address} · {selectedPlace.landmark} ({selectedPlace.area})
             </p>
           </div>

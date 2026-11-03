@@ -25,24 +25,22 @@ export const TransitLeafletMap: React.FC<TransitLeafletMapProps> = ({
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      // Create Leaflet map centered on Mumbai
+      // Centered on central Mumbai corridor (Dadar)
       const map = L.map(mapContainerRef.current, {
-        center: [19.0178, 72.8428], // Dadar / Central Mumbai
+        center: [19.0178, 72.8428],
         zoom: 12,
-        zoomControl: false, // Custom position or cleaner look
+        zoomControl: false,
         attributionControl: false,
       });
 
-      // Add Zoom Control at top-right
       L.control.zoom({ position: 'topright' }).addTo(map);
 
-      // OpenStreetMap Grayscale Styled Tiles
+      // OpenStreetMap Tiles with warm morning filter
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors',
       }).addTo(map);
 
-      // Layer group for pins and route polylines
       const layerGroup = L.layerGroup().addTo(map);
       layerGroupRef.current = layerGroup;
       mapInstanceRef.current = map;
@@ -56,7 +54,7 @@ export const TransitLeafletMap: React.FC<TransitLeafletMapProps> = ({
     };
   }, []);
 
-  // Update Pins and Polyline whenever stops or activeStopId change
+  // Update Pins and Polyline
   useEffect(() => {
     const map = mapInstanceRef.current;
     const layerGroup = layerGroupRef.current;
@@ -66,57 +64,96 @@ export const TransitLeafletMap: React.FC<TransitLeafletMapProps> = ({
 
     if (stops.length === 0) return;
 
-    // Collect coordinates for route line and bounds
+    // Collect coordinates
     const latLngs: L.LatLngExpression[] = stops.map((s) => [
       s.coordinates.lat,
       s.coordinates.lng,
     ]);
 
-    // 1. Draw Route Polyline: Black casing + Vibrant Taxi Yellow center
-    if (latLngs.length > 1) {
-      // Outer black casing line
-      L.polyline(latLngs, {
-        color: '#0E0E0E',
-        weight: 7,
-        opacity: 0.95,
-        lineCap: 'round',
-        lineJoin: 'round',
-      }).addTo(layerGroup);
+    // Active stop index for visited vs upcoming segmentation
+    const activeIdx = activeStopId
+      ? stops.findIndex((s) => s.id === activeStopId)
+      : -1;
 
-      // Inner Taxi Yellow line
-      L.polyline(latLngs, {
-        color: '#F6B800',
-        weight: 4,
-        opacity: 1,
-        lineCap: 'round',
-        lineJoin: 'round',
-        dashArray: '8, 6',
+    // 1. Draw Polyline
+    if (latLngs.length > 1) {
+      // Visited route segments (Sage dashed)
+      if (activeIdx > 0) {
+        const visitedLatLngs = latLngs.slice(0, activeIdx + 1);
+        L.polyline(visitedLatLngs, {
+          color: '#4F7A66',
+          weight: 4,
+          opacity: 0.8,
+          dashArray: '6, 6',
+          lineCap: 'round',
+        }).addTo(layerGroup);
+      }
+
+      // Upcoming route segments: Ink casing + Marigold center
+      const upcomingLatLngs = activeIdx >= 0 ? latLngs.slice(activeIdx) : latLngs;
+      if (upcomingLatLngs.length > 1) {
+        L.polyline(upcomingLatLngs, {
+          color: '#1F2A27',
+          weight: 6,
+          opacity: 0.85,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(layerGroup);
+
+        L.polyline(upcomingLatLngs, {
+          color: '#F2B84B',
+          weight: 3.5,
+          opacity: 1,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(layerGroup);
+      }
+    }
+
+    // 2. Add Current Location Blue Dot with halo
+    const firstStop = stops[0];
+    if (firstStop) {
+      const liveDot = L.divIcon({
+        className: 'user-location-halo',
+        html: `
+          <div style="position: relative; width: 20px; height: 20px;">
+            <div style="position: absolute; inset: -4px; border-radius: 50%; background-color: rgba(168, 197, 218, 0.4); animation: pulse 2s infinite;"></div>
+            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #385566; border: 2px solid #FFFDF9; box-shadow: 0 2px 6px rgba(0,0,0,0.15); margin: 4px;"></div>
+          </div>
+        `,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+      L.marker([firstStop.coordinates.lat + 0.003, firstStop.coordinates.lng - 0.002], {
+        icon: liveDot,
+        title: 'Your Position',
       }).addTo(layerGroup);
     }
 
-    // 2. Draw Numbered Square Pins in IBM Plex Mono
+    // 3. Draw Numbered Round Pins
     stops.forEach((stop, idx) => {
       const orderNumber = String(stop.order || idx + 1).padStart(2, '0');
       const isActive = stop.id === activeStopId;
+      const isDone = stop.status === 'completed';
 
-      // Color mapping following transit signage brief
-      let bgClass = 'bg-[#15171A] text-white';
-      if (stop.priority === 'high') {
-        bgClass = 'bg-[#D7372B] text-white'; // Signal Red
-      } else if (stop.priority === 'medium') {
-        bgClass = 'bg-[#E58A00] text-[#0E0E0E]'; // Amber
-      } else {
-        bgClass = 'bg-[#3E7C7A] text-white'; // Slate-teal
-      }
+      let pinBg = 'background-color: #FFFDF9; color: #1F2A27;';
+      let borderStyle = 'border: 2px solid #E6DECF;';
 
-      if (isActive) {
-        bgClass = 'bg-[#F6B800] text-[#0E0E0E]';
+      if (isDone) {
+        pinBg = 'background-color: #E4F3EB; color: #3F8F66;';
+        borderStyle = 'border: 2px solid #3F8F66;';
+      } else if (isActive) {
+        pinBg = 'background-color: #F2B84B; color: #1F2A27;';
+        borderStyle = 'border: 2px solid #1F2A27; box-shadow: 0 0 0 4px #FBEBC6, 0 4px 12px rgba(60,45,20,0.15);';
+      } else if (stop.priority === 'high') {
+        pinBg = 'background-color: #FBE1DB; color: #D9604C;';
+        borderStyle = 'border: 2px solid #D9604C;';
       }
 
       const customIcon = L.divIcon({
         className: 'custom-pin-container',
         html: `
-          <div class="transit-map-pin ${bgClass} ${isActive ? 'active-pin' : ''}">
+          <div class="soft-map-pin ${isActive ? 'active-pin' : ''}" style="${pinBg} ${borderStyle}">
             <span>${orderNumber}</span>
           </div>
         `,
@@ -130,35 +167,27 @@ export const TransitLeafletMap: React.FC<TransitLeafletMapProps> = ({
         title: `#${stop.order} ${stop.recipientName}`,
       }).addTo(layerGroup);
 
-      // Transit ticket-styled Popup
-      const isLateRisk = stop.priority === 'high' && stop.etaMinutes > 35;
+      // Popup
       const popupHtml = `
-        <div class="p-3 bg-white font-body text-xs min-w-[200px]">
-          <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#0E0E0E]/20">
-            <span class="font-mono font-bold text-[10px] uppercase text-[#0E0E0E]/70">
+        <div style="padding: 12px; font-family: 'Figtree', sans-serif; min-width: 210px; background-color: #FFFDF9;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E6DECF; padding-bottom: 6px; margin-bottom: 8px;">
+            <span style="font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; color: #55625D; text-transform: uppercase;">
               STOP #${stop.order || 1} · ${(stop.type || 'drop').toUpperCase()}
             </span>
-            <span class="font-mono font-bold text-[10px] px-1.5 py-0.2 rounded bg-[#0E0E0E] text-white uppercase">
+            <span style="font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 6px; border-radius: 999px; background-color: ${stop.priority === 'high' ? '#FBE1DB' : '#FBEBC6'}; color: ${stop.priority === 'high' ? '#D9604C' : '#E0A11B'}; font-weight: 700;">
               ${(stop.priority || 'medium').toUpperCase()}
             </span>
           </div>
-          <h4 class="font-display font-extrabold text-sm text-[#0E0E0E] leading-tight mb-1">
+          <h4 style="font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; color: #1F2A27; margin: 0 0 4px 0;">
             ${stop.recipientName}
           </h4>
-          <p class="text-[#0E0E0E]/80 mb-2 leading-snug">
+          <p style="font-size: 12px; color: #55625D; margin: 0 0 8px 0; line-height: 1.35;">
             ${stop.address}
           </p>
-          <div class="font-mono text-[11px] flex items-center justify-between pt-1 border-t border-[#0E0E0E]/10">
-            <span class="font-bold text-[#0E0E0E]">ETA: +${stop.etaMinutes}m</span>
-            ${stop.deadline ? `<span class="text-[#D7372B] font-bold">by ${stop.deadline}</span>` : ''}
+          <div style="display: flex; align-items: center; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 11px; padding-top: 6px; border-top: 1px dashed #E6DECF;">
+            <span style="color: #1F2A27; font-weight: 600;">ETA: +${stop.etaMinutes}m</span>
+            ${stop.deadline ? `<span style="color: #D9604C; font-weight: 600;">by ${stop.deadline}</span>` : ''}
           </div>
-          ${
-            isLateRisk
-              ? `<div class="mt-2 p-1 bg-[#D7372B]/10 border border-[#D7372B] text-[#D7372B] font-mono font-bold text-[10px]">
-                  ⚠ DEADLINE RISK: High traffic corridor
-                </div>`
-              : ''
-          }
         </div>
       `;
 
@@ -169,11 +198,10 @@ export const TransitLeafletMap: React.FC<TransitLeafletMapProps> = ({
       });
     });
 
-    // Fit map bounds to view all stops with comfortable padding
     if (latLngs.length > 0) {
       const bounds = L.latLngBounds(latLngs);
       map.fitBounds(bounds, {
-        padding: [40, 40],
+        padding: [36, 36],
         maxZoom: 15,
       });
     }
@@ -183,12 +211,13 @@ export const TransitLeafletMap: React.FC<TransitLeafletMapProps> = ({
     <div className={`relative w-full h-full min-h-[350px] ${className}`}>
       <div
         ref={mapContainerRef}
-        className="w-full h-full border-2 border-[#0E0E0E] rounded-[6px] shadow-hard z-10"
+        className="w-full h-full border border-[#E6DECF] dark:border-[#2B3833] rounded-2xl shadow-warm z-10 overflow-hidden"
         style={{ minHeight: '100%' }}
       />
-      {/* Brand Transit Compass Badge overlay */}
-      <div className="absolute bottom-3 left-3 z-20 bg-white border-2 border-[#0E0E0E] rounded-[4px] px-2.5 py-1 text-[10px] font-mono font-bold shadow-hard-sm pointer-events-none">
-        MUMBAI TRANSIT RADAR · OSM GRAYSCALE
+      {/* Soft Mumbai Morning Radar Tag */}
+      <div className="absolute bottom-3 left-3 z-20 bg-[#FFFDF9]/90 dark:bg-[#1C2421]/90 backdrop-blur-sm border border-[#E6DECF] dark:border-[#2B3833] rounded-full px-3 py-1 text-[11px] font-mono text-[#55625D] dark:text-[#95A39D] shadow-warm-sm pointer-events-none flex items-center gap-1.5">
+        <span className="w-2 h-2 rounded-full bg-[#F2B84B]" />
+        <span>Mumbai Transit Corridor</span>
       </div>
     </div>
   );

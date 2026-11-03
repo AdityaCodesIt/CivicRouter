@@ -2,7 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../common/Button';
 import { DeliveryStop } from '../../data/mockStops';
-import { CheckCircle2, RotateCcw, Share2, Award, ArrowRight, IndianRupee } from 'lucide-react';
+import { CompletionIllustration } from '../illustrations/CompletionIllustration';
+import { RotateCcw, ArrowRight, IndianRupee } from 'lucide-react';
 
 interface EndOfDayCelebrationProps {
   stops: DeliveryStop[];
@@ -26,72 +27,72 @@ export const EndOfDayCelebration: React.FC<EndOfDayCelebrationProps> = ({
 
   return (
     <div className="max-w-md mx-auto px-4 py-8">
-      <div className="ticket-stub p-6 bg-white border-2 border-[#0E0E0E] shadow-hard text-center">
-        {/* Stamp Icon */}
-        <div className="w-16 h-16 mx-auto mb-3 bg-[#2E7D4F] text-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+      <div className="soft-card p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-md text-center">
+        {/* Soft Completion Illustration */}
+        <div className="w-24 h-24 mx-auto mb-2">
+          <CompletionIllustration className="w-full h-full" />
         </div>
 
-        <div className="font-mono text-[10px] font-bold text-[#0E0E0E]/60 uppercase tracking-widest">
-          SHIFT RUN COMPLETE · TRANSIT LOGGED
+        <div className="font-mono text-[11px] font-semibold text-[var(--color-ink-muted)] uppercase tracking-widest">
+          Shift Run Complete · Transit Logged
         </div>
 
-        <h1 className="font-display font-extrabold text-2xl text-[#0E0E0E] mt-1 mb-1">
+        <h1 className="font-display font-bold text-2xl text-[var(--color-ink)] mt-1 mb-1">
           Manifest Cleared!
         </h1>
 
-        <p className="font-body text-xs text-[#0E0E0E]/75 mb-6 max-w-xs mx-auto">
+        <p className="font-body text-xs text-[var(--color-ink-secondary)] mb-6 max-w-xs mx-auto">
           All parcels accounted for across the Mumbai corridor. Your on-time delivery record has been preserved.
         </p>
 
         {/* Shift Key Metrics Grid */}
         <div className="grid grid-cols-2 gap-3 mb-6 text-left">
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px]">
-            <div className="font-mono text-[9px] font-bold text-[#0E0E0E]/60 uppercase">
-              DELIVERY SUCCESS
+          <div className="p-3 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
+            <div className="font-mono text-[10px] font-medium text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Delivery Success
             </div>
-            <div className="font-mono font-extrabold text-xl text-[#0E0E0E] mt-0.5">
+            <div className="font-mono font-bold text-xl text-[var(--color-ink)] mt-0.5 tabular-nums">
               {completedCount} / {stops.length}
             </div>
-            <div className="font-mono text-[10px] text-[#2E7D4F] font-bold">
-              {rate}% ON TIME
+            <div className="font-mono text-[10px] text-[var(--color-status-success)] font-semibold">
+              {rate}% on time
             </div>
           </div>
 
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px]">
-            <div className="font-mono text-[9px] font-bold text-[#0E0E0E]/60 uppercase">
-              TIME SAVED
+          <div className="p-3 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
+            <div className="font-mono text-[10px] font-medium text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Time Saved
             </div>
-            <div className="font-mono font-extrabold text-xl text-[#2E7D4F] mt-0.5">
+            <div className="font-mono font-bold text-xl text-[var(--color-status-success)] mt-0.5 tabular-nums">
               ~{timeSavedMinutes}m
             </div>
-            <div className="font-mono text-[10px] text-[#0E0E0E]/60">
-              VS GOOGLE MAPS
+            <div className="font-mono text-[10px] text-[var(--color-ink-muted)]">
+              vs Google Maps
             </div>
           </div>
 
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px]">
-            <div className="font-mono text-[9px] font-bold text-[#0E0E0E]/60 uppercase">
-              DISTANCE RUN
+          <div className="p-3 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
+            <div className="font-mono text-[10px] font-medium text-[var(--color-ink-muted)] uppercase tracking-wide">
+              Distance Run
             </div>
-            <div className="font-mono font-extrabold text-xl text-[#0E0E0E] mt-0.5">
-              {totalKm} KM
+            <div className="font-mono font-bold text-xl text-[var(--color-ink)] mt-0.5 tabular-nums">
+              {totalKm} km
             </div>
-            <div className="font-mono text-[10px] text-[#0E0E0E]/60">
-              OPTIMAL ROUTE
+            <div className="font-mono text-[10px] text-[var(--color-ink-muted)]">
+              Optimal corridor
             </div>
           </div>
 
-          <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px]">
-            <div className="font-mono text-[9px] font-bold text-[#0E0E0E]/60 uppercase">
-              COD COLLECTED
+          <div className="p-3 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
+            <div className="font-mono text-[10px] font-medium text-[var(--color-ink-muted)] uppercase tracking-wide">
+              COD Collected
             </div>
-            <div className="font-mono font-extrabold text-xl text-[#0E0E0E] mt-0.5 flex items-center">
-              <IndianRupee className="w-4 h-4 text-[#E58A00]" />
+            <div className="font-mono font-bold text-xl text-[var(--color-ink)] mt-0.5 flex items-center tabular-nums">
+              <IndianRupee className="w-4 h-4 text-[#8c5e03]" />
               <span>{totalCodAmount}</span>
             </div>
-            <div className="font-mono text-[10px] text-[#0E0E0E]/60">
-              READY FOR REMITTANCE
+            <div className="font-mono text-[10px] text-[var(--color-ink-muted)]">
+              Ready to remit
             </div>
           </div>
         </div>

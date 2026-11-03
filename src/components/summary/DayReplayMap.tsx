@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { DeliveryStop } from '../../data/mockStops';
-import { Play, Pause, RotateCcw, FastForward, CheckCircle2, XCircle, Clock, Bike } from 'lucide-react';
+import { Play, Pause, RotateCcw, FastForward, Bike } from 'lucide-react';
 
 interface DayReplayMapProps {
   stops: DeliveryStop[];
@@ -22,8 +22,8 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentStep, setCurrentStep] = useState<number>(0); // Index from 0 to stops.length - 1
-  const [speed, setSpeed] = useState<number>(1); // 1x, 2x, 4x
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [speed, setSpeed] = useState<number>(1);
 
   const totalSteps = Math.max(stops.length, 1);
   const activeStop = stops[currentStep] || stops[0];
@@ -45,6 +45,7 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors',
+        className: 'leaflet-tile-warm',
       }).addTo(map);
 
       const layerGroup = L.layerGroup().addTo(map);
@@ -74,11 +75,11 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
       s.coordinates.lng,
     ]);
 
-    // 1. Black outer casing polyline
+    // 1. Ink outer casing polyline
     L.polyline(latLngs, {
-      color: '#0E0E0E',
-      weight: 6,
-      opacity: 0.9,
+      color: '#1F2A27',
+      weight: 5,
+      opacity: 0.85,
       lineCap: 'round',
       lineJoin: 'round',
     }).addTo(layerGroup);
@@ -86,24 +87,24 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
     // 2. Traveled path vs remaining path
     const traveledLatLngs = latLngs.slice(0, currentStep + 1);
     if (traveledLatLngs.length > 1) {
-      // Completed solid route segment
+      // Completed solid route segment in sage
       L.polyline(traveledLatLngs, {
-        color: '#2E7D4F',
-        weight: 4,
+        color: '#4F7A66',
+        weight: 3.5,
         opacity: 1,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(layerGroup);
     }
 
-    // Remaining segment in dashed taxi yellow
+    // Remaining segment in dashed marigold
     const remainingLatLngs = latLngs.slice(currentStep);
     if (remainingLatLngs.length > 1) {
       L.polyline(remainingLatLngs, {
-        color: '#F6B800',
-        weight: 3.5,
+        color: '#F2B84B',
+        weight: 3,
         opacity: 0.9,
-        dashArray: '6, 6',
+        dashArray: '5, 5',
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(layerGroup);
@@ -111,27 +112,30 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
 
     // 3. Stop pins
     stops.forEach((stop, idx) => {
-      const isPastOrCurrent = idx <= currentStep;
       const isCompleted = completedStopIds.includes(stop.id);
       const isFailed = stop.status === 'skipped' || (stop.notes && stop.notes.includes('[Failed:'));
 
-      let pinBg = '#FFFFFF';
-      let pinText = '#0E0E0E';
+      let pinBg = '#FFFDF9';
+      let pinText = '#1F2A27';
+      let borderCol = '#D3C8B4';
 
       if (isCompleted) {
-        pinBg = '#2E7D4F';
-        pinText = '#FFFFFF';
+        pinBg = '#E3EEE6';
+        pinText = '#4F7A66';
+        borderCol = '#A9C4B0';
       } else if (isFailed) {
-        pinBg = '#D7372B';
-        pinText = '#FFFFFF';
+        pinBg = '#FBE1DB';
+        pinText = '#D9604C';
+        borderCol = '#D9604C';
       } else if (idx === currentStep) {
-        pinBg = '#F6B800';
-        pinText = '#0E0E0E';
+        pinBg = '#F2B84B';
+        pinText = '#1F2A27';
+        borderCol = '#1F2A27';
       }
 
       const isCurrentActive = idx === currentStep;
       const pinHtml = `
-        <div class="transit-map-pin ${isCurrentActive ? 'active-pin' : ''}" style="background-color: ${pinBg}; color: ${pinText}; border-width: ${isCurrentActive ? '3px' : '2px'};">
+        <div style="width: 28px; height: 28px; border-radius: 9999px; background-color: ${pinBg}; color: ${pinText}; border: 2px solid ${borderCol}; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 600; font-size: 11px; box-shadow: 0 2px 6px rgba(60,45,20,0.15); ${isCurrentActive ? 'transform: scale(1.15); ring: 3px solid rgba(242, 184, 75, 0.4);' : ''}">
           ${String(stop.order || idx + 1).padStart(2, '0')}
         </div>
       `;
@@ -139,8 +143,8 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
       const icon = L.divIcon({
         html: pinHtml,
         className: 'transit-pin-wrapper',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
       });
 
       L.marker([stop.coordinates.lat, stop.coordinates.lng], { icon })
@@ -154,8 +158,8 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
     // 4. Moving Courier Bike Marker
     if (activeStop) {
       const courierHtml = `
-        <div class="replay-courier-pin" title="Courier at Stop ${activeStop.order}">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E0E0E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div style="width: 34px; height: 34px; border-radius: 9999px; background-color: #F2B84B; border: 2px solid #1F2A27; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(60,45,20,0.25);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2A27" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="18.5" cy="17.5" r="3.5"/>
             <circle cx="5.5" cy="17.5" r="3.5"/>
             <circle cx="15" cy="5" r="1"/>
@@ -167,8 +171,8 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
       const courierIcon = L.divIcon({
         html: courierHtml,
         className: 'courier-icon-wrapper',
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
       });
 
       const marker = L.marker([activeStop.coordinates.lat, activeStop.coordinates.lng], {
@@ -243,18 +247,18 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
   };
 
   return (
-    <div className={`p-4 bg-white border-2 border-[#0E0E0E] rounded-[6px] shadow-hard ${className}`}>
+    <div className={`p-4 sm:p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm ${className}`}>
       {/* Replay Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b-2 border-dashed border-[#0E0E0E]/20 gap-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-[4px] bg-[#F6B800] border-2 border-[#0E0E0E] flex items-center justify-center shadow-hard-sm">
-            <Bike className="w-4 h-4 text-[#0E0E0E] stroke-[2.5]" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 mb-3.5 border-b border-[var(--color-border)] gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-[var(--color-marigold-tint)] text-[var(--color-ink)] border border-[var(--color-marigold)]/30 flex items-center justify-center">
+            <Bike className="w-4 h-4 text-[#8c5e03]" />
           </div>
           <div>
-            <h3 className="font-display font-extrabold text-lg text-[#0E0E0E] leading-tight">
+            <h3 className="font-display font-bold text-lg text-[var(--color-ink)] leading-tight">
               Day Replay & Route Tracing
             </h3>
-            <p className="font-mono text-[11px] text-[#0E0E0E]/70">
+            <p className="font-body text-xs text-[var(--color-ink-muted)]">
               Interactive timeline of your Mumbai dispatch path
             </p>
           </div>
@@ -265,49 +269,49 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
           <button
             type="button"
             onClick={handleSpeedChange}
-            className="px-2 py-1 rounded-[3px] border border-[#0E0E0E] bg-[#F4F1EA] hover:bg-white font-mono text-xs font-extrabold text-[#0E0E0E] shadow-hard-sm cursor-pointer flex items-center gap-1"
+            className="px-2.5 py-1 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-sunken)] hover:bg-[var(--color-surface)] font-mono text-xs font-semibold text-[var(--color-ink)] cursor-pointer flex items-center gap-1 transition-colors"
             title="Change Playback Speed"
           >
             <FastForward className="w-3 h-3" />
-            <span>{speed}x SPEED</span>
+            <span>{speed}x speed</span>
           </button>
 
-          <div className="font-mono text-xs font-black bg-[#15171A] text-[#F6B800] px-2.5 py-1 rounded-[3px] border border-[#0E0E0E]">
-            STOP {currentStep + 1} / {totalSteps}
+          <div className="font-mono text-xs font-medium bg-[#1F2A27] text-[#F2B84B] dark:bg-[#2C2415] dark:text-[#F2B84B] dark:border dark:border-[#F2B84B]/30 px-2.5 py-1 rounded-full">
+            Stop {currentStep + 1} / {totalSteps}
           </div>
         </div>
       </div>
 
       {/* Map Container */}
-      <div className="relative w-full h-[280px] sm:h-[340px] rounded-[4px] overflow-hidden border-2 border-[#0E0E0E] shadow-hard-sm mb-3">
+      <div className="relative w-full h-[280px] sm:h-[340px] rounded-xl overflow-hidden border border-[var(--color-border)] mb-3.5">
         <div ref={mapContainerRef} className="w-full h-full" />
 
         {/* Floating Active Stop Toast in Bottom Left */}
         {activeStop && (
-          <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:right-auto sm:max-w-xs z-[1000] p-2.5 bg-white border-2 border-[#0E0E0E] rounded-[4px] shadow-hard text-xs font-mono">
+          <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:right-auto sm:max-w-xs z-[1000] p-3 bg-[var(--color-surface)]/95 backdrop-blur-md border border-[var(--color-border)] rounded-xl shadow-md text-xs font-body">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-bold text-[#E58A00] uppercase tracking-wider text-[10px]">
-                REPLAY TIME: {getSimulatedTime(currentStep)}
+              <span className="font-mono font-semibold text-[#8c5e03] uppercase tracking-wide text-[10px]">
+                Time: {getSimulatedTime(currentStep)}
               </span>
               <span
-                className={`px-1.5 py-0.5 rounded-[2px] font-bold text-[9px] uppercase ${
+                className={`px-2 py-0.5 rounded-full font-body font-semibold text-[10px] uppercase ${
                   completedStopIds.includes(activeStop.id)
-                    ? 'bg-[#2E7D4F] text-white'
-                    : 'bg-[#D7372B] text-white'
+                    ? 'bg-[var(--color-sage-tint)] text-[var(--color-sage-deep)]'
+                    : 'bg-[var(--color-priority-high-bg)] text-[var(--color-priority-high)]'
                 }`}
               >
-                {completedStopIds.includes(activeStop.id) ? 'DELIVERED' : 'PENDING'}
+                {completedStopIds.includes(activeStop.id) ? 'Delivered' : 'Pending'}
               </span>
             </div>
-            <div className="font-display font-bold text-sm text-[#0E0E0E] truncate">
+            <div className="font-body font-semibold text-sm text-[var(--color-ink)] truncate">
               #{activeStop.order}. {activeStop.recipientName}
             </div>
-            <div className="text-[11px] text-[#0E0E0E]/70 truncate mt-0.5">
+            <div className="text-[11px] text-[var(--color-ink-secondary)] truncate mt-0.5">
               {activeStop.landmark} ({activeStop.area})
             </div>
             {activeStop.codAmount && activeStop.codAmount > 0 ? (
-              <div className="mt-1 font-bold text-[#2E7D4F] text-[10px]">
-                COLLECTED COD: ₹{activeStop.codAmount}
+              <div className="mt-1 font-mono font-medium text-[var(--color-sage-deep)] text-[11px]">
+                Collected COD: ₹{activeStop.codAmount}
               </div>
             ) : null}
           </div>
@@ -315,10 +319,10 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
       </div>
 
       {/* Playback Controls & Scrubber */}
-      <div className="p-3 bg-[#F4F1EA] border-2 border-[#0E0E0E] rounded-[4px]">
+      <div className="p-3.5 bg-[var(--color-bg-sunken)] border border-[var(--color-border)] rounded-xl">
         {/* Scrubber slider */}
         <div className="mb-2.5">
-          <div className="flex items-center justify-between font-mono text-[11px] font-bold text-[#0E0E0E]/70 mb-1">
+          <div className="flex items-center justify-between font-mono text-[10px] font-medium text-[var(--color-ink-muted)] mb-1">
             <span>START: DADAR DISPATCH</span>
             <span>DESTINATION: COLABA DOCK</span>
           </div>
@@ -332,7 +336,7 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
               setIsPlaying(false);
             }}
             aria-label="Route Replay Scrubber"
-            className="w-full h-2.5 bg-white rounded-lg appearance-none cursor-pointer border-2 border-[#0E0E0E] accent-[#F6B800]"
+            className="w-full h-2 bg-[var(--color-surface)] rounded-lg appearance-none cursor-pointer border border-[var(--color-border)] accent-[var(--color-marigold)]"
           />
         </div>
 
@@ -342,17 +346,17 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="px-4 py-2 min-h-[44px] rounded-[4px] border-2 border-[#0E0E0E] bg-[#F6B800] text-[#0E0E0E] hover:bg-[#e0a700] active:translate-x-[1px] active:translate-y-[1px] font-display font-black text-xs uppercase shadow-hard-sm cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 min-h-[40px] rounded-full bg-[var(--color-marigold)] text-[var(--color-ink)] hover:bg-[var(--color-marigold-hover)] font-body font-semibold text-xs uppercase shadow-sm cursor-pointer flex items-center gap-1.5 transition-all active:scale-[0.98]"
             >
               {isPlaying ? (
                 <>
-                  <Pause className="w-4 h-4 stroke-[3]" />
-                  <span>PAUSE REPLAY</span>
+                  <Pause className="w-4 h-4 stroke-[2.5]" />
+                  <span>Pause</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 stroke-[3]" />
-                  <span>{currentStep >= totalSteps - 1 ? 'REPLAY FROM START' : 'PLAY REPLAY'}</span>
+                  <Play className="w-4 h-4 stroke-[2.5]" />
+                  <span>{currentStep >= totalSteps - 1 ? 'Replay' : 'Play'}</span>
                 </>
               )}
             </button>
@@ -360,15 +364,15 @@ export const DayReplayMap: React.FC<DayReplayMapProps> = ({
             <button
               type="button"
               onClick={handleResetReplay}
-              className="p-2 min-h-[44px] min-w-[44px] rounded-[4px] border-2 border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-gray-100 font-mono text-xs font-bold shadow-hard-sm cursor-pointer flex items-center justify-center"
+              className="p-2 min-h-[40px] min-w-[40px] rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:bg-[var(--color-bg-sunken)] font-mono text-xs font-semibold shadow-sm cursor-pointer flex items-center justify-center transition-colors"
               title="Reset to Stop 1"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="font-mono text-xs font-bold text-[#0E0E0E]">
-            {completedStopIds.length} OF {totalSteps} COMPLETED
+          <div className="font-mono text-xs font-medium text-[var(--color-ink-secondary)]">
+            {completedStopIds.length} of {totalSteps} completed
           </div>
         </div>
       </div>

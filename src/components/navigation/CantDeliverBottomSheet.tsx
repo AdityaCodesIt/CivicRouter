@@ -87,7 +87,7 @@ export const CantDeliverBottomSheet: React.FC<CantDeliverBottomSheetProps> = ({
       }
     >
       <div className="space-y-3 font-body">
-        <div className="font-mono text-xs font-bold text-[#0E0E0E]/70 uppercase">
+        <div className="font-body font-semibold text-xs text-[var(--color-ink-muted)] uppercase tracking-wide">
           Select Incident Reason:
         </div>
 
@@ -99,24 +99,26 @@ export const CantDeliverBottomSheet: React.FC<CantDeliverBottomSheetProps> = ({
               key={r.id}
               type="button"
               onClick={() => setSelectedReason(r.id)}
-              className={`w-full p-3.5 rounded-[4px] border-2 border-[#0E0E0E] text-left transition-all cursor-pointer flex items-start gap-3 select-none ${
+              className={`w-full p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 select-none ${
                 isSelected
-                  ? 'bg-[#FFF9E6] border-[#0E0E0E] ring-2 ring-[#0E0E0E] shadow-hard-sm'
-                  : 'bg-white hover:bg-[#F4F1EA]'
+                  ? 'bg-[var(--color-apricot-tint)] border-[var(--color-apricot)] ring-2 ring-[var(--color-apricot)]/20 shadow-sm'
+                  : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-[3px] border border-[#0E0E0E] flex items-center justify-center shrink-0 mt-0.5 ${
-                  isSelected ? 'bg-[#D7372B] text-white' : 'bg-[#F4F1EA] text-[#0E0E0E]'
+                className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                  isSelected
+                    ? 'bg-[var(--color-priority-high)] text-white'
+                    : 'bg-[var(--color-bg-sunken)] text-[var(--color-ink-secondary)]'
                 }`}
               >
-                <Icon className="w-4 h-4 stroke-[2.5]" />
+                <Icon className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="font-display font-bold text-sm text-[#0E0E0E]">
+                <div className="font-body font-semibold text-sm text-[var(--color-ink)]">
                   {r.label}
                 </div>
-                <div className="font-body text-xs text-[#0E0E0E]/70 mt-0.5">
+                <div className="font-body text-xs text-[var(--color-ink-secondary)] mt-0.5">
                   {r.subtext}
                 </div>
               </div>
@@ -126,7 +128,7 @@ export const CantDeliverBottomSheet: React.FC<CantDeliverBottomSheetProps> = ({
 
         {/* Optional note */}
         <div className="pt-2">
-          <label className="block font-display font-bold text-xs uppercase mb-1">
+          <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1">
             Additional Rider Note (Optional)
           </label>
           <input
@@ -134,7 +136,7 @@ export const CantDeliverBottomSheet: React.FC<CantDeliverBottomSheetProps> = ({
             value={customNote}
             onChange={(e) => setCustomNote(e.target.value)}
             placeholder="e.g. Neighbor said family is out until evening"
-            className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#D7372B]"
+            className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-xs placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
           />
         </div>
       </div>

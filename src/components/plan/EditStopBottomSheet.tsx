@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { DeliveryStop, PriorityLevel, StopType } from '../../data/mockStops';
-import { PriorityBadge } from '../common/PriorityBadge';
 import {
   Trash2,
   Check,
@@ -13,6 +12,9 @@ import {
   IndianRupee,
   FileText,
   Link as LinkIcon,
+  Flame,
+  CircleDot,
+  Circle,
 } from 'lucide-react';
 
 interface EditStopBottomSheetProps {
@@ -122,80 +124,89 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
       <form onSubmit={handleFormSubmit} className="space-y-4">
         {/* Type Selector (Pickup vs Drop) */}
         <div>
-          <label className="block font-display font-bold text-xs uppercase mb-1.5">
+          <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] mb-1.5 uppercase tracking-wide">
             Stop Manifest Type
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setType('drop')}
-              className={`h-11 px-3 rounded-[4px] border-2 border-[#0E0E0E] font-display font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`h-11 px-3 rounded-xl border font-body font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 type === 'drop'
-                  ? 'bg-[#15171A] text-white shadow-hard-sm'
-                  : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                  ? 'bg-[#E3EEE6] dark:bg-[#1E2B25] text-[#4F7A66] dark:text-[#A9C4B0] border-[#4F7A66] dark:border-[#A9C4B0] font-bold shadow-sm'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
-              <ArrowDownRight className="w-4 h-4 text-[#F6B800]" />
-              <span>DELIVERY / DROP</span>
+              <ArrowDownRight className={`w-4 h-4 ${type === 'drop' ? 'text-[#4F7A66] dark:text-[#A9C4B0]' : 'text-[var(--color-ink-muted)]'}`} />
+              <span>Delivery / Drop</span>
             </button>
 
             <button
               type="button"
               onClick={() => setType('pickup')}
-              className={`h-11 px-3 rounded-[4px] border-2 border-[#0E0E0E] font-display font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`h-11 px-3 rounded-xl border font-body font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 type === 'pickup'
-                  ? 'bg-[#E58A00] text-[#0E0E0E] shadow-hard-sm'
-                  : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                  ? 'bg-[#FBEBC6] dark:bg-[#2C2415] text-[#8c5e03] dark:text-[#F2B84B] border-[#8c5e03] dark:border-[#F2B84B] font-bold shadow-sm'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
-              <ArrowUpRight className="w-4 h-4" />
-              <span>PICKUP / RETURN</span>
+              <ArrowUpRight className={`w-4 h-4 ${type === 'pickup' ? 'text-[#8c5e03] dark:text-[#F2B84B]' : 'text-[var(--color-ink-muted)]'}`} />
+              <span>Pickup / Return</span>
             </button>
           </div>
         </div>
 
-        {/* Priority Selector (3 Big Segmented Buttons) */}
+        {/* Priority Selector (3 Distinct Buttons with Icon + Shape) */}
         <div>
-          <label className="block font-display font-bold text-xs uppercase mb-1.5">
-            Priority Tier (3 Distinct Buttons)
+          <label className="block font-body font-semibold text-xs text-[var(--color-ink-muted)] mb-1.5 uppercase tracking-wide">
+            Priority Tier
           </label>
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => setPriority('high')}
-              className={`min-h-[46px] p-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+              className={`min-h-[48px] p-2 rounded-xl border font-body text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                 priority === 'high'
-                  ? 'bg-[#D7372B] text-white shadow-hard-sm ring-2 ring-[#0E0E0E]'
-                  : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                  ? 'bg-[var(--color-priority-high-bg)] text-[var(--color-priority-high)] border-[var(--color-priority-high)] ring-2 ring-[var(--color-priority-high)]/20 shadow-sm'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
-              <span>HIGH</span>
+              <div className="flex items-center gap-1 font-bold">
+                <Flame className="w-3.5 h-3.5 fill-current" />
+                <span>High</span>
+              </div>
               <span className="text-[10px] opacity-80 font-normal">Urgent</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPriority('medium')}
-              className={`min-h-[46px] p-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+              className={`min-h-[48px] p-2 rounded-xl border font-body text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                 priority === 'medium'
-                  ? 'bg-[#E58A00] text-[#0E0E0E] shadow-hard-sm ring-2 ring-[#0E0E0E]'
-                  : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                  ? 'bg-[var(--color-priority-med-bg)] text-[#8c5e03] border-[var(--color-priority-med)] ring-2 ring-[var(--color-priority-med)]/20 shadow-sm'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
-              <span>MEDIUM</span>
+              <div className="flex items-center gap-1 font-bold">
+                <CircleDot className="w-3.5 h-3.5 fill-current" />
+                <span>Medium</span>
+              </div>
               <span className="text-[10px] opacity-80 font-normal">Scheduled</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPriority('low')}
-              className={`min-h-[46px] p-2 rounded-[4px] border-2 border-[#0E0E0E] font-mono text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+              className={`min-h-[48px] p-2 rounded-xl border font-body text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                 priority === 'low'
-                  ? 'bg-[#3E7C7A] text-white shadow-hard-sm ring-2 ring-[#0E0E0E]'
-                  : 'bg-white text-[#0E0E0E] hover:bg-[#F4F1EA]'
+                  ? 'bg-[var(--color-priority-low-bg)] text-[var(--color-priority-low)] border-[var(--color-priority-low)] ring-2 ring-[var(--color-priority-low)]/20 shadow-sm'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]'
               }`}
             >
-              <span>LOW</span>
+              <div className="flex items-center gap-1 font-bold">
+                <Circle className="w-3.5 h-3.5" />
+                <span>Low</span>
+              </div>
               <span className="text-[10px] opacity-80 font-normal">Flexible</span>
             </button>
           </div>
@@ -203,7 +214,7 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
 
         {/* Recipient Name */}
         <div>
-          <label className="block font-display font-bold text-xs uppercase mb-1">
+          <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1">
             Recipient / Contact Name *
           </label>
           <input
@@ -211,13 +222,13 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+            className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
           />
         </div>
 
         {/* Address */}
         <div>
-          <label className="block font-display font-bold text-xs uppercase mb-1">
+          <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1">
             Address *
           </label>
           <input
@@ -225,14 +236,14 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
             required
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+            className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
           />
         </div>
 
         {/* Area & Landmark */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1">
+            <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1">
               Area
             </label>
             <input
@@ -240,19 +251,19 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
               required
               value={area}
               onChange={(e) => setArea(e.target.value)}
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+              className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
             />
           </div>
 
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1">
+            <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1">
               Landmark
             </label>
             <input
               type="text"
               value={landmark}
               onChange={(e) => setLandmark(e.target.value)}
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+              className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -260,8 +271,8 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
         {/* Deadline & Phone */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+            <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1 flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
               <span>Deadline Time</span>
             </label>
             <input
@@ -269,21 +280,23 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
               placeholder="e.g. 01:30 PM"
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-sm bg-white"
+              className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-mono text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
             />
           </div>
 
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5" />
+            <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1 flex items-center gap-1">
+              <Phone className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
               <span>Phone</span>
             </label>
             <input
-              type="text"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+91 98200 XXXXX"
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-sm bg-white"
+              className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-mono text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -291,30 +304,32 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
         {/* COD Amount & Paired Stop */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-              <IndianRupee className="w-3.5 h-3.5" />
+            <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1 flex items-center gap-1">
+              <IndianRupee className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
               <span>COD Amount (₹)</span>
             </label>
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min={0}
               step={10}
               value={codAmount}
-              onChange={(e) => setCodAmount(Number(e.target.value))}
+              onChange={(e) => setCodAmount(e.target.value === '' ? 0 : Number(e.target.value))}
               placeholder="0 (Prepaid)"
-              className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-mono text-sm bg-white"
+              className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-mono text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
             />
           </div>
 
           <div>
-            <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-              <LinkIcon className="w-3.5 h-3.5" />
+            <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1 flex items-center gap-1">
+              <LinkIcon className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
               <span>Pair with Stop</span>
             </label>
             <select
               value={pairedStopId}
               onChange={(e) => setPairedStopId(e.target.value)}
-              className="w-full h-11 px-2 border-2 border-[#0E0E0E] rounded-[4px] font-body text-xs bg-white"
+              className="w-full h-11 px-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
             >
               <option value="">None (Independent)</option>
               {otherStops.map((os) => (
@@ -328,8 +343,8 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
 
         {/* Notes */}
         <div>
-          <label className="block font-display font-bold text-xs uppercase mb-1 flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5" />
+          <label className="block font-body font-medium text-xs text-[var(--color-ink-secondary)] mb-1 flex items-center gap-1">
+            <FileText className="w-3.5 h-3.5 text-[var(--color-ink-muted)]" />
             <span>Delivery Instructions / Notes</span>
           </label>
           <input
@@ -337,7 +352,7 @@ export const EditStopBottomSheet: React.FC<EditStopBottomSheetProps> = ({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="e.g. Ring bell twice, leave with security guard"
-            className="w-full h-11 px-3 border-2 border-[#0E0E0E] rounded-[4px] font-body text-sm bg-white"
+            className="w-full h-11 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] font-body text-sm placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:border-transparent transition-all"
           />
         </div>
       </form>

@@ -11,8 +11,6 @@ import {
   Plus,
   X,
   Compass,
-  ArrowRight,
-  Sparkles,
 } from 'lucide-react';
 
 export const getCategoryIcon = (category: string = 'shop', className: string = 'w-4 h-4') => {
@@ -48,44 +46,43 @@ export const OnTheWayPromptBanner: React.FC<OnTheWayPromptBannerProps> = ({
     activeOnTheWayPrompt,
     dismissOnTheWayPrompt,
     addPromptAsNextStop,
-    triggerMockOnTheWayPrompt,
   } = useRoute();
 
   if (!activeOnTheWayPrompt) {
     return null;
   }
 
-  const { name, category, distanceMeters, detourMinutes, landmark, area } =
+  const { name, category, distanceMeters, detourMinutes, landmark } =
     activeOnTheWayPrompt;
 
   return (
     <div
-      className={`bg-[#FFFFFF] border-2 border-[#0E0E0E] rounded-[6px] shadow-hard p-3 animate-in fade-in slide-in-from-top-4 duration-200 select-none ${className}`}
+      className={`bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-md p-3.5 animate-in fade-in slide-in-from-top-3 duration-200 select-none ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Left: Icon & Notification Text */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-[4px] border-2 border-[#0E0E0E] bg-[#F6B800] text-[#0E0E0E] flex items-center justify-center shrink-0 shadow-hard-sm">
-            {getCategoryIcon(category, 'w-5 h-5 text-[#0E0E0E] stroke-[2.5]')}
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-marigold-tint)] text-[var(--color-ink)] border border-[var(--color-marigold)]/30 flex items-center justify-center shrink-0">
+            {getCategoryIcon(category, 'w-5 h-5 text-[#8c5e03] stroke-[2]')}
           </div>
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold text-[#E58A00] uppercase tracking-wider flex items-center gap-1">
+              <span className="font-mono text-[10px] font-semibold text-[#8c5e03] uppercase tracking-wider flex items-center gap-1">
                 <Compass className="w-3 h-3" />
-                ON-THE-WAY DETECTED
+                On-The-Way Detected
               </span>
-              <span className="font-mono text-[10px] font-bold bg-[#15171A] text-white px-1.5 py-0.2 rounded">
-                +{detourMinutes} MIN
+              <span className="font-mono text-[10px] font-semibold bg-[var(--color-bg-sunken)] text-[var(--color-ink)] border border-[var(--color-border)] px-1.5 py-0.5 rounded-full">
+                +{detourMinutes} min
               </span>
             </div>
 
-            <div className="font-display font-extrabold text-sm text-[#0E0E0E] leading-snug truncate">
+            <div className="font-body font-bold text-sm text-[var(--color-ink)] leading-snug truncate mt-0.5">
               {name}
             </div>
 
-            <div className="font-mono text-xs text-[#0E0E0E]/80 truncate">
-              {distanceMeters} m off current corridor · {landmark}
+            <div className="font-body text-xs text-[var(--color-ink-secondary)] truncate">
+              {distanceMeters}m off route · {landmark}
             </div>
           </div>
         </div>
@@ -95,7 +92,7 @@ export const OnTheWayPromptBanner: React.FC<OnTheWayPromptBannerProps> = ({
           <button
             type="button"
             onClick={dismissOnTheWayPrompt}
-            className="min-h-[42px] px-3 rounded-[4px] border-2 border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#F4F1EA] active:bg-[#E8E4DA] font-mono text-xs font-bold flex items-center gap-1 cursor-pointer"
+            className="h-9 px-3 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-secondary)] hover:bg-[var(--color-bg-sunken)] font-body text-xs font-medium flex items-center gap-1 cursor-pointer transition-colors"
           >
             <X className="w-3.5 h-3.5" />
             <span>Not Now</span>
@@ -104,9 +101,9 @@ export const OnTheWayPromptBanner: React.FC<OnTheWayPromptBannerProps> = ({
           <button
             type="button"
             onClick={() => addPromptAsNextStop(activeOnTheWayPrompt)}
-            className="min-h-[42px] px-4 rounded-[4px] border-2 border-[#0E0E0E] bg-[#F6B800] text-[#0E0E0E] hover:bg-[#e0a700] active:translate-x-[1px] active:translate-y-[1px] font-display font-black text-xs uppercase shadow-hard-sm flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-4 rounded-full bg-[var(--color-marigold)] hover:bg-[var(--color-marigold-hover)] text-[#1F2A27] font-body font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4 stroke-[3]" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Stop</span>
           </button>
         </div>

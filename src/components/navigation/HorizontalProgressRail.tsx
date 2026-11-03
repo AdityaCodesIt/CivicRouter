@@ -23,13 +23,13 @@ export const HorizontalProgressRail: React.FC<HorizontalProgressRailProps> = ({
         const isSkipped = stop.status === 'skipped';
         const isHigh = stop.priority === 'high';
 
-        let bgClass = 'bg-white text-[#0E0E0E] border-[#0E0E0E]/40';
+        let bgClass = 'bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] hover:bg-[var(--color-bg-sunken)]';
         if (isCompleted) {
-          bgClass = 'bg-[#2E7D4F] text-white border-[#0E0E0E]';
+          bgClass = 'bg-[#E3EEE6] dark:bg-[#1E2B25] text-[#4F7A66] dark:text-[#A9C4B0] border-[#4F7A66]/30 dark:border-[#A9C4B0]/40 font-semibold';
         } else if (isSkipped) {
-          bgClass = 'bg-[#D7372B]/20 text-[#D7372B] border-[#D7372B]';
+          bgClass = 'bg-[#FBE1DB] dark:bg-[#2C1917] text-[#D9604C] dark:text-[#F4A58A] border-[#D9604C]/30 dark:border-[#F4A58A]/40 font-semibold';
         } else if (isCurrent) {
-          bgClass = 'bg-[#F6B800] text-[#0E0E0E] border-[#0E0E0E] ring-2 ring-[#0E0E0E] shadow-hard-sm scale-105';
+          bgClass = 'bg-[var(--color-marigold)] text-[#1F2A27] border-[#E0A11B] ring-2 ring-[var(--color-marigold)]/30 shadow-sm font-bold scale-105';
         }
 
         return (
@@ -37,18 +37,18 @@ export const HorizontalProgressRail: React.FC<HorizontalProgressRailProps> = ({
             key={stop.id}
             type="button"
             onClick={() => onSelectIndex(idx)}
-            className={`min-w-[42px] h-8 px-1.5 flex items-center justify-center gap-1 rounded-[3px] border-2 font-mono font-bold text-[11px] transition-all cursor-pointer shrink-0 ${bgClass}`}
+            className={`min-w-[40px] h-8 px-2 flex items-center justify-center gap-1 rounded-full border font-mono font-medium text-xs transition-all cursor-pointer shrink-0 ${bgClass}`}
             title={`#${stop.order} ${stop.recipientName} (${stop.area})`}
           >
             {isCompleted ? (
-              <Check className="w-3.5 h-3.5 stroke-[3]" />
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
             ) : isSkipped ? (
-              <X className="w-3.5 h-3.5 stroke-[3]" />
+              <X className="w-3.5 h-3.5 stroke-[2.5]" />
             ) : (
               <span>#{stop.order}</span>
             )}
             {isHigh && !isCompleted && !isSkipped && (
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D7372B]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-priority-high)] shrink-0" />
             )}
           </button>
         );
